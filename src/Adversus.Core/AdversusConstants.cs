@@ -10,6 +10,8 @@ namespace CluedIn.Crawling.Adversus.Core
         public struct KeyName
         {
             public const string ApiKey = nameof(ApiKey);
+            public const string Username = nameof(Username);
+            public const string Password = nameof(Password);
         }
 
         // TODO Complete the following section

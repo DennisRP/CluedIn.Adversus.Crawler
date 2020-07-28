@@ -40,6 +40,10 @@ namespace CluedIn.Provider.Adversus
             var adversusCrawlJobData = new AdversusCrawlJobData();
             if (configuration.ContainsKey(AdversusConstants.KeyName.ApiKey))
             { adversusCrawlJobData.ApiKey = configuration[AdversusConstants.KeyName.ApiKey].ToString(); }
+            if (configuration.ContainsKey(AdversusConstants.KeyName.Username))
+            { adversusCrawlJobData.Username = configuration[AdversusConstants.KeyName.Username].ToString(); }
+            if (configuration.ContainsKey(AdversusConstants.KeyName.Password))
+            { adversusCrawlJobData.Password = configuration[AdversusConstants.KeyName.Password].ToString(); }
 
             return await Task.FromResult(adversusCrawlJobData);
         }
