@@ -70,25 +70,24 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             return new AccountInformation("", ""); 
         }
 
-        public IEnumerable<Campaign> Get()
+        public IEnumerable<Campaign> Get(string username, string password)
         {
-            //TODO: Replace with actual access key and project numbers
             //TODO add actual url
             var api = "https://api.adversus.dk/campaigns";
             using (HttpClient httpClient = new HttpClient())
             {
-                //TODO read creds from config and add here
-                var auth = string.Format("Basic: {0}", "credentials");
+                var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
+                var auth = string.Format("Basic: {0}", credentials);
                 httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                 var response = httpClient.GetAsync(api).Result;
                 var responseContent = response.Content.ReadAsStringAsync().Result;
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    //TODO log error
+                    log.Verbose("401 Unauthorized. Check credentials");
                 }
                 else if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    //TODO: log error
+                    log.Error(response.StatusCode.ToString() + " Failed to get data");
                 }
                 var results = JsonConvert.DeserializeObject<Campaigns>(responseContent);
                 foreach (var item in results.campaigns)
