@@ -83,7 +83,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 var responseContent = response.Content.ReadAsStringAsync().Result;
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    log.Verbose("401 Unauthorized. Check credentials");
+                    log.Error("401 Unauthorized. Check credentials");
                 }
                 else if (response.StatusCode != HttpStatusCode.OK)
                 {
