@@ -72,7 +72,6 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
 
         public IEnumerable<Campaign> Get(string username, string password)
         {
-            //TODO add actual url
             var api = "https://api.adversus.dk/campaigns";
             using (HttpClient httpClient = new HttpClient())
             {
