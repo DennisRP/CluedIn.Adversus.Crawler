@@ -2,6 +2,7 @@ using Castle.MicroKernel.Registration;
 
 using CluedIn.Core;
 using CluedIn.Core.Providers;
+using CluedIn.Core.Server;
 // 
 using CluedIn.Crawling.Adversus.Core;
 using CluedIn.Crawling.Adversus.Infrastructure.Installers;
@@ -12,7 +13,7 @@ using ComponentHost;
 namespace CluedIn.Provider.Adversus
 {
     [Component(AdversusConstants.ProviderName, "Providers", ComponentType.Service, ServerComponents.ProviderWebApi, Components.Server, Components.DataStores, Isolation = ComponentIsolation.NotIsolated)]
-    public sealed class AdversusProviderComponent : ServiceApplicationComponent<EmbeddedServer>
+    public sealed class AdversusProviderComponent : ServiceApplicationComponent<IBusServer>
     {
         public AdversusProviderComponent(ComponentInfo componentInfo)
             : base(componentInfo)
@@ -26,10 +27,10 @@ namespace CluedIn.Provider.Adversus
         {
             Container.Install(new InstallComponents());
 
-            Container.Register(Types.FromThisAssembly().BasedOn<IProvider>().WithServiceFromInterface().If(t => !t.IsAbstract).LifestyleSingleton());
-            Container.Register(Types.FromThisAssembly().BasedOn<IEntityActionBuilder>().WithServiceFromInterface().If(t => !t.IsAbstract).LifestyleSingleton());
+            var asm = System.Reflection.Assembly.GetExecutingAssembly();
 
-
+            Container.Register(Types.FromAssembly(asm).BasedOn<IProvider>().WithServiceFromInterface().If(t => !t.IsAbstract).LifestyleSingleton());
+            Container.Register(Types.FromAssembly(asm).BasedOn<IEntityActionBuilder>().WithServiceFromInterface().If(t => !t.IsAbstract).LifestyleSingleton());
 
             State = ServiceState.Started;
         }
