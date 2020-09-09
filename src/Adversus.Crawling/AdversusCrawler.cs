@@ -23,7 +23,6 @@ namespace CluedIn.Crawling.Adversus
 
             var client = clientFactory.CreateNew(adversuscrawlJobData);
 
-            //retrieve data from provider and yield objects
             foreach (var item in client.GetCampaigns(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
             {
                 yield return item;
