@@ -51,7 +51,4 @@
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
 </Project>

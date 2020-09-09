@@ -14,16 +14,14 @@ namespace CluedIn.Crawling.Adversus.Core
             public const string Password = nameof(Password);
         }
 
-        // TODO Complete the following section
-        // Please see https://cluedin-io.github.io/CluedIn.Documentation/docs/1-Integration/build-integration.html
-        public const string CrawlerDescription = "Adversus is a ... to be completed ...";
-        public const string Instructions = "Provide authentication instructions here, if applicable";
+        public const string CrawlerDescription = "We help call centers boost KPIs, make better decisions based on insights, and manage contacts more wisely.";
+        public const string Instructions = "Provide basic authentication via username and password";
         public const IntegrationType Type = IntegrationType.Cloud;
-        public const string Uri = "http://www.sampleurl.com"; //Uri of remote tool if applicable
+        public const string Uri = "https://www.adversus.io/"; //Uri of remote tool if applicable
 
         // To change the icon see embedded resource
         // src\Adversus.Provider\Resources\cluedin.png
-        public const string IconResourceName = "Resources.cluedin.png";
+        public const string IconResourceName = "Resources.adversus.png";
 
         public static IList<string> ServiceType = new List<string> { "" };
         public static IList<string> Aliases = new List<string> { "" };
@@ -45,7 +43,7 @@ namespace CluedIn.Crawling.Adversus.Core
         };
 
 
-        public const bool SupportsConfiguration = true;
+        public const bool SupportsConfiguration = false;
         public const bool SupportsWebHooks = true;
         public const bool SupportsAutomaticWebhookCreation = true;
 
@@ -68,8 +66,8 @@ namespace CluedIn.Crawling.Adversus.Core
         {
             Features = new Dictionary<string, string>
             {
-                                       { "Tracking",        "Expenses and Invoices against customers" },
-                                       { "Intelligence",    "Aggregate types of invoices and expenses against customers and companies." }
+                                       { "Calls",        "Improve outbound calls today" },
+                                       { "Intelligence",    "Adversus is a web-based dialer and practical CRM solution for telemarketing, fundraising, and appointment scheduling businesses." }
                                    },
             Icon = ProviderIconFactory.CreateUri(ProviderId),
             ProviderName = ProviderName,
