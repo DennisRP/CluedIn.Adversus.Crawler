@@ -4,15 +4,15 @@ namespace CluedIn.Crawling.Adversus.Core.Models
 {
     public class Campaigns
     {
-        public IList<Campaign> campaigns { get; set; }
+        public List<Campaign> campaigns { get; set; }
     }
 
     public class Campaign
     {
         public string id { get; set; }
         public Settings settings { get; set; }
-        public IList<MasterField> masterFields { get; set; }
-        public IList<ResultField> resultFields { get; set; }
+        public List<MasterField> masterFields { get; set; }
+        public List<ResultField> resultFields { get; set; }
     }
     public class Settings
     {
@@ -36,7 +36,7 @@ namespace CluedIn.Crawling.Adversus.Core.Models
         public string id { get; set; }
         public string type { get; set; }
         public string active { get; set; }
-        public IList<string> options { get; set; }
+        public List<string> options { get; set; }
     }
 
 }
