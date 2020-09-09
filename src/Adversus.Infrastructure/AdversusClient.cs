@@ -803,5 +803,44 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
 
             }
         }
+
+        [CanBeNull]
+        public WebhookResponse DeleteWebhooks(WebHookSignature webhook)
+        {
+            var api = "https://api.adversus.dk/webhooks/" + webhook.ExternalId;
+            using (HttpClient httpClient = new HttpClient())
+            {
+                var webhooks = new List<AdversusWebhook>();
+                try
+                {
+                    var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_adversusCrawlJobData.Username + ":" + _adversusCrawlJobData.Password));
+                    var auth = string.Format("Basic: {0}", credentials);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", auth);
+                    var response = httpClient.DeleteAsync(api).Result;
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        log.Error("401 Unauthorized. Check credentials");
+                    }
+                    else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        log.Error("500 Internal Server Error.");
+                    }
+                    else if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
+                    }
+                    var results = JsonConvert.DeserializeObject<WebhookResponse>(responseContent);
+                    return results;
+                }
+                catch (Exception exception)
+                {
+                    log.Error(() => "Call to Adversus API Failed", exception);
+                }
+
+                return null;
+
+            }
+        }
     }
 }
