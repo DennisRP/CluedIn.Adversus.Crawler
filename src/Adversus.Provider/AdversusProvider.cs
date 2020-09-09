@@ -116,31 +116,116 @@ namespace CluedIn.Provider.Adversus
                 : $"{relativeDateTime.Minute} 0/4 * * *";
         }
 
-        public override Task<IEnumerable<WebHookSignature>> CreateWebHook(ExecutionContext context, [NotNull] CrawlJobData jobData, [NotNull] IWebhookDefinition webhookDefinition, [NotNull] IDictionary<string, object> config)
+        public override async Task<IEnumerable<WebHookSignature>> CreateWebHook(ExecutionContext context, [NotNull] CrawlJobData jobData, [NotNull] IWebhookDefinition webhookDefinition, [NotNull] IDictionary<string, object> config)
+        {
+            await Task.Run(() =>
+            {
+                var adversusCrawlJobData = (AdversusCrawlJobData)jobData;
+                var webhookSignatures = new List<WebHookSignature>();
+                try
+                {
+                    var client = _adversusClientFactory.CreateNew(adversusCrawlJobData);
+
+                    var data = client.GetWebhooks(adversusCrawlJobData.Username, adversusCrawlJobData.Password);
+
+                    if (data == null)
+                        return webhookSignatures;
+
+                    var hookTypes = new[] { "lead_saved", "call_ended", "callAnswered", "leadClosedSuccess", "leadClosedAutomaticRedial", "leadClosedPrivateRedial", "leadClosedNotInterested", "leadClosedInvalid", "leadClosedUnqualified", "leadClosedSystem", "leads_deactivated", "leads_inserted", "mail_activity", "sms_sent", "sms_received", "appointment_added", "appointment_updated" };
+                    webhookDefinition.Uri = new Uri(this.appContext.System.Configuration.WebhookReturnUrl.Trim('/') /*+ ConfigurationManagerEx.AppSettings["Providers.HubSpot.WebhookEndpoint"]*/);
+
+                    foreach (var subscription in hookTypes)
+                    {
+                        if (config.ContainsKey("webhooks"))
+                        {
+                            //var enabledHooks = (List<WebhookEventType>)config["webhooks"];
+                            //var enabled = enabledHooks.Where(s => s.Status == "ACTIVE").Select(s => s.Name);
+                            //if (!enabled.Contains(subscription))
+                            //{
+                            //    continue;
+                            //}
+                        }
+
+                        try
+                        {
+                            var result = client.CreateWebhooks(webhookDefinition.Uri, subscription);
+                            webhookSignatures.Add(new WebHookSignature { Signature = webhookDefinition.ProviderDefinitionId.ToString(), ExternalVersion = "v1", ExternalId = null, EventTypes = "lead_saved,call_ended,callAnswered,leadClosedSuccess,leadClosedAutomaticRedial,leadClosedPrivateRedial,leadClosedNotInterested,leadClosedInvalid,leadClosedUnqualified,leadClosedSystem,leads_deactivated,leads_inserted,mail_activity,sms_sent,sms_received,appointment_added,appointment_updated" });
+                        }
+                        catch (Exception exception)
+                        {
+                            context.Log.Warn(() => "Could not create HubSpot Webhook for subscription", exception);
+                            return new List<WebHookSignature>();
+                        }
+                    }
+
+
+                    webhookDefinition.Verified = true;
+                }
+                catch (Exception exception)
+                {
+                    context.Log.Warn(() => "Could not create Adversus Webhook", exception);
+                    return new List<WebHookSignature>();
+                }
+
+                var organizationProviderDataStore = context.Organization.DataStores.GetDataStore<ProviderDefinition>();
+                if (organizationProviderDataStore != null)
+                {
+                    if (webhookDefinition.ProviderDefinitionId != null)
+                    {
+                        var webhookEnabled = organizationProviderDataStore.GetById(context, webhookDefinition.ProviderDefinitionId.Value);
+                        if (webhookEnabled != null)
+                        {
+                            webhookEnabled.WebHooks = true;
+                            organizationProviderDataStore.Update(context, webhookEnabled);
+                        }
+                    }
+                }
+
+                return webhookSignatures;
+            });
+
+            return new List<WebHookSignature>();
+        }
+
+        public override async Task<IEnumerable<WebhookDefinition>> GetWebHooks(ExecutionContext context)
+        {
+            var webhookDefinitionDataStore = context.Organization.DataStores.GetDataStore<WebhookDefinition>();
+            return await webhookDefinitionDataStore.SelectAsync(context, s => s.Verified != null && s.Verified.Value);
+        }
+
+        public override async Task DeleteWebHook(ExecutionContext context, [NotNull] CrawlJobData jobData, [NotNull] IWebhookDefinition webhookDefinition)
         {
             if (jobData == null)
                 throw new ArgumentNullException(nameof(jobData));
             if (webhookDefinition == null)
                 throw new ArgumentNullException(nameof(webhookDefinition));
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
 
-            throw new NotImplementedException();
-        }
+            await Task.Run(() =>
+            {
+                var webhookDefinitionProviderDataStore = context.Organization.DataStores.GetDataStore<WebhookDefinition>();
+                if (webhookDefinitionProviderDataStore != null)
+                {
+                    var webhook = webhookDefinitionProviderDataStore.GetById(context, webhookDefinition.Id);
+                    if (webhook != null)
+                    {
+                        webhookDefinitionProviderDataStore.Delete(context, webhook);
+                    }
+                }
 
-        public override Task<IEnumerable<WebhookDefinition>> GetWebHooks(ExecutionContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task DeleteWebHook(ExecutionContext context, [NotNull] CrawlJobData jobData, [NotNull] IWebhookDefinition webhookDefinition)
-        {
-            if (jobData == null)
-                throw new ArgumentNullException(nameof(jobData));
-            if (webhookDefinition == null)
-                throw new ArgumentNullException(nameof(webhookDefinition));
-
-            throw new NotImplementedException();
+                var organizationProviderDataStore = context.Organization.DataStores.GetDataStore<ProviderDefinition>();
+                if (organizationProviderDataStore != null)
+                {
+                    if (webhookDefinition.ProviderDefinitionId != null)
+                    {
+                        var webhookEnabled = organizationProviderDataStore.GetById(context, webhookDefinition.ProviderDefinitionId.Value);
+                        if (webhookEnabled != null)
+                        {
+                            webhookEnabled.WebHooks = false;
+                            organizationProviderDataStore.Update(context, webhookEnabled);
+                        }
+                    }
+                }
+            });
         }
 
         public override IEnumerable<string> WebhookManagementEndpoints([NotNull] IEnumerable<string> ids)

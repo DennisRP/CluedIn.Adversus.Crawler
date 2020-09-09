@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using CluedIn.Core;
 using CluedIn.Core.Logging;
 using CluedIn.Core.Providers;
 using CluedIn.Crawling.Adversus.Core;
 using CluedIn.Crawling.Adversus.Core.Models;
+using CluedIn.Crawling.Adversus.Core.Models.Webhooks;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -72,7 +75,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             var api = "https://api.adversus.dk/organization";
             using (HttpClient httpClient = new HttpClient())
             {
-              
+
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_adversusCrawlJobData.Username + ":" + _adversusCrawlJobData.Password));
@@ -88,7 +91,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    
+
                     var results = JsonConvert.DeserializeObject<Organization>(responseContent);
                     if (results != null)
                         return new AccountInformation(results.Id, results.Name);
@@ -97,7 +100,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 {
                     log.Error(() => "Call to Adversus API Failed", exception);
                 }
-               
+
             }
             //TODO - return some unique information about the remote data source
             // that uniquely identifies the account
@@ -253,7 +256,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             var api = "https://api.adversus.dk/contacts";
             using (HttpClient httpClient = new HttpClient())
             {
-               
+
                 int page = 0;
                 while (true)
                 {
@@ -265,7 +268,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                         var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
                         var auth = string.Format("Basic: {0}", credentials);
                         httpClient.DefaultRequestHeaders.Add("Authorization", auth);
-      
+
                         var response = httpClient.GetAsync(pagedApi).Result;
                         var responseContent = response.Content.ReadAsStringAsync().Result;
                         if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -538,7 +541,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             var api = "https://api.adversus.dk/cdr";
             using (HttpClient httpClient = new HttpClient())
             {
-     
+
                 int page = 0;
                 while (true)
                 {
@@ -546,7 +549,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
 
                     try
                     {
-                        var pagedApi = api + "?page=" + page + "&pageSize=20" + "&filter={startTime : \""+ _adversusCrawlJobData.LastCrawlFinishTime + "\"}";
+                        var pagedApi = api + "?page=" + page + "&pageSize=20" + "&filter={startTime : \"" + _adversusCrawlJobData.LastCrawlFinishTime + "\"}";
                         var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
                         var auth = string.Format("Basic: {0}", credentials);
                         httpClient.DefaultRequestHeaders.Add("Authorization", auth);
@@ -718,6 +721,86 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
 
                     page++;
                 }
+            }
+        }
+
+        public IEnumerable<AdversusWebhook> GetWebhooks(string username, string password)
+        {
+            var api = "https://api.adversus.dk/webhooks";
+            using (HttpClient httpClient = new HttpClient())
+            {
+                var webhooks = new List<AdversusWebhook>();
+                try
+                {
+                    var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
+                    var auth = string.Format("Basic: {0}", credentials);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", auth);
+                    var response = httpClient.GetAsync(api).Result;
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        log.Error("401 Unauthorized. Check credentials");
+                    }
+                    else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        log.Error("500 Internal Server Error.");
+                    }
+                    else if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
+                    }
+                    var results = JsonConvert.DeserializeObject<List<AdversusWebhook>>(responseContent);
+                    webhooks = results;
+                }
+                catch (Exception exception)
+                {
+                    log.Error(() => "Call to Adversus API Failed", exception);
+                }
+                foreach (var item in webhooks)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        [CanBeNull]
+        public WebhookResponse CreateWebhooks(Uri url, string @event)
+        {
+            var api = "https://api.adversus.dk/webhooks";
+            using (HttpClient httpClient = new HttpClient())
+            {
+                var webhooks = new List<AdversusWebhook>();
+                try
+                {
+                    var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_adversusCrawlJobData.Username + ":" + _adversusCrawlJobData.Password));
+                    var auth = string.Format("Basic: {0}", credentials);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", auth);
+                    var json = JsonConvert.SerializeObject(new WebhookPost() { AuthKey = credentials, Event = @event, Url = url.ToString(), Template = new Template() { Event = @event, IntegrationId = this.GetAccountInformation().AccountId } });
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var response = httpClient.PostAsync(api, data).Result;
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        log.Error("401 Unauthorized. Check credentials");
+                    }
+                    else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        log.Error("500 Internal Server Error.");
+                    }
+                    else if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
+                    }
+                    var results = JsonConvert.DeserializeObject<WebhookResponse>(responseContent);
+                    return results;
+                }
+                catch (Exception exception)
+                {
+                    log.Error(() => "Call to Adversus API Failed", exception);
+                }
+
+                return null;
+
             }
         }
     }

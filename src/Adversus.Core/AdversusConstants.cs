@@ -27,7 +27,7 @@ namespace CluedIn.Crawling.Adversus.Core
 
         public static IList<string> ServiceType = new List<string> { "" };
         public static IList<string> Aliases = new List<string> { "" };
-        public const string Category = "";
+        public const string Category = "CRM";
         public const string Details = "";
         public static AuthMethods AuthMethods = new AuthMethods()
         {
@@ -46,7 +46,7 @@ namespace CluedIn.Crawling.Adversus.Core
 
 
         public const bool SupportsConfiguration = true;
-        public const bool SupportsWebHooks = false;
+        public const bool SupportsWebHooks = true;
         public const bool SupportsAutomaticWebhookCreation = true;
 
         public const bool RequiresAppInstall = false;
