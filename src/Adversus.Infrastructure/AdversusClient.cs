@@ -16,14 +16,9 @@ using RestSharp;
 
 namespace CluedIn.Crawling.Adversus.Infrastructure
 {
-    // TODO - This class should act as a client to retrieve the data to be crawled.
-    // It should provide the appropriate methods to get the data
-    // according to the type of data source (e.g. for AD, GetUsers, GetRoles, etc.)
-    // It can receive a IRestClient as a dependency to talk to a RestAPI endpoint.
-    // This class should not contain crawling logic (i.e. in which order things are retrieved)
     public class AdversusClient
     {
-        private const string BaseUri = "http://sample.com";
+        private const string BaseUri = "https://api.adversus.dk";
 
         private readonly ILogger log;
 
@@ -48,26 +43,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
 
             // TODO use info from adversusCrawlJobData to instantiate the connection
             client.BaseUrl = new Uri(BaseUri);
-            client.AddDefaultParameter("api_key", adversusCrawlJobData.ApiKey, ParameterType.QueryString);
             this._adversusCrawlJobData = adversusCrawlJobData;
-        }
-
-        private async Task<T> GetAsync<T>(string url)
-        {
-            var request = new RestRequest(url, Method.GET);
-
-            var response = await client.ExecuteTaskAsync(request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                var diagnosticMessage = $"Request to {client.BaseUrl}{url} failed, response {response.ErrorMessage} ({response.StatusCode})";
-                log.Error(() => diagnosticMessage);
-                throw new InvalidOperationException($"Communication to jsonplaceholder unavailable. {diagnosticMessage}");
-            }
-
-            var data = JsonConvert.DeserializeObject<T>(response.Content);
-
-            return data;
         }
 
         public AccountInformation GetAccountInformation()
@@ -75,7 +51,6 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             var api = "https://api.adversus.dk/organization";
             using (HttpClient httpClient = new HttpClient())
             {
-
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_adversusCrawlJobData.Username + ":" + _adversusCrawlJobData.Password));
@@ -100,10 +75,8 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 {
                     log.Error(() => "Call to Adversus API Failed", exception);
                 }
-
             }
-            //TODO - return some unique information about the remote data source
-            // that uniquely identifies the account
+
             return new AccountInformation("", "");
         }
 
@@ -129,7 +102,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                         log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
                     var results = JsonConvert.DeserializeObject<Campaigns>(responseContent);
-                    campaigns = results.campaigns;
+                    campaigns = results.CampaignList;
                 }
                 catch (Exception exception)
                 {
@@ -202,6 +175,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
+
                     var results = JsonConvert.DeserializeObject<List<Project>>(responseContent);
                     projects = results;
                 }
@@ -216,12 +190,12 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             }
         }
 
-        public IEnumerable<Project> GetProjectDetails(int projectId, string username, string password)
+        [CanBeNull]
+        public Project GetProjectDetails(int projectId, string username, string password)
         {
             var api = string.Format("https://api.adversus.dk/projects/{0}", projectId);
             using (HttpClient httpClient = new HttpClient())
-            {
-                var projects = new List<Project>();
+            {                
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
@@ -237,17 +211,14 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    var results = JsonConvert.DeserializeObject<List<Project>>(responseContent);
-                    projects = results;
+                    var results = JsonConvert.DeserializeObject<Project>(responseContent);
+                    return results;
                 }
                 catch (Exception exception)
                 {
                     log.Error(() => "Call to Adversus API Failed", exception);
-                }
-                foreach (var item in projects)
-                {
-                    yield return item;
-                }
+                    return null;
+                }               
             }
         }
 
@@ -256,7 +227,6 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             var api = "https://api.adversus.dk/contacts";
             using (HttpClient httpClient = new HttpClient())
             {
-
                 int page = 0;
                 while (true)
                 {
@@ -305,12 +275,12 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             }
         }
 
-        public IEnumerable<Contact> GetContactDetails(int contactId, string username, string password)
+        [CanBeNull]
+        public Contact GetContactDetails(int contactId, string username, string password)
         {
             var api = string.Format("https://api.adversus.dk/contacts/{0}", contactId);
             using (HttpClient httpClient = new HttpClient())
             {
-                var projects = new List<Contact>();
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
@@ -326,17 +296,14 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    var results = JsonConvert.DeserializeObject<List<Contact>>(responseContent);
-                    projects = results;
+                    var results = JsonConvert.DeserializeObject<Contact>(responseContent);
+                    return results;
                 }
                 catch (Exception exception)
                 {
                     log.Error(() => "Call to Adversus API Failed", exception);
-                }
-                foreach (var item in projects)
-                {
-                    yield return item;
-                }
+                    return null;
+                }               
             }
         }
 
@@ -365,6 +332,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
+
                     var results = JsonConvert.DeserializeObject<List<Lead>>(responseContent);
                     projects = results;
                 }
@@ -404,6 +372,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
+
                     var results = JsonConvert.DeserializeObject<List<Session>>(responseContent);
                     sessions = results;
                 }
@@ -423,7 +392,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             var api = "https://api.adversus.dk/users";
             using (HttpClient httpClient = new HttpClient())
             {
-                var sessions = new List<User>();
+                var users = new List<User>();
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
@@ -444,13 +413,13 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                         log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
                     var results = JsonConvert.DeserializeObject<List<User>>(responseContent);
-                    sessions = results;
+                    users = results;
                 }
                 catch (Exception exception)
                 {
                     log.Error(() => "Call to Adversus API Failed", exception);
                 }
-                foreach (var item in sessions)
+                foreach (var item in users)
                 {
                     yield return item;
                 }

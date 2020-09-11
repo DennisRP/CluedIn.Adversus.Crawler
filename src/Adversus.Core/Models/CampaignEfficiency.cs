@@ -20,5 +20,8 @@ namespace CluedIn.Crawling.Adversus.Core.Models
 
         [JsonProperty("totalPauseSeconds")]
         public int TotalPauseSeconds { get; set; }
+
+        [JsonIgnore]
+        public string CampaignId { get; set; }
     }
 }

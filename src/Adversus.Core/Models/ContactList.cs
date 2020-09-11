@@ -28,7 +28,6 @@ namespace CluedIn.Crawling.Adversus.Core.Models
 
     public class Contact
     {
-
         [JsonProperty("id")]
         public int Id { get; set; }
 

@@ -9,14 +9,12 @@ namespace CluedIn.Crawling.Adversus.Core.Models
 {
     public class Links
     {
-
         [JsonProperty("recording")]
         public string Recording { get; set; }
     }
 
     public class CDR
     {
-
         [JsonProperty("id")]
         public int Id { get; set; }
 
@@ -56,6 +54,4 @@ namespace CluedIn.Crawling.Adversus.Core.Models
         [JsonProperty("links")]
         public Links Links { get; set; }
     }
-
-
 }

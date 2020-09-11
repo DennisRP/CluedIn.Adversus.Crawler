@@ -26,26 +26,22 @@ namespace CluedIn.Crawling.Adversus
             foreach (var item in client.GetCampaigns(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
             {
                 yield return item;
-                foreach (var campaignEfficiency in client.GetCampaignEfficiency(item.id, adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+
+                foreach (var campaignEfficiency in client.GetCampaignEfficiency(item.Id, adversuscrawlJobData.Username, adversuscrawlJobData.Password))
                 {
+                    campaignEfficiency.CampaignId = item.Id;
                     yield return campaignEfficiency;
                 }
             }
 
             foreach (var item in client.GetProjects(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
             {
-                foreach (var project in client.GetProjectDetails(item.Id, adversuscrawlJobData.Username, adversuscrawlJobData.Password))
-                {
-                    yield return project;
-                }
+                yield return client.GetProjectDetails(item.Id, adversuscrawlJobData.Username, adversuscrawlJobData.Password);
             }
 
             foreach (var item in client.GetContacts(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
             {
-                foreach (var project in client.GetContactDetails(item.Id, adversuscrawlJobData.Username, adversuscrawlJobData.Password))
-                {
-                    yield return project;
-                }
+                yield return client.GetContactDetails(item.Id, adversuscrawlJobData.Username, adversuscrawlJobData.Password);
             }
 
             foreach (var item in client.GetLeads(adversuscrawlJobData.Username, adversuscrawlJobData.Password))

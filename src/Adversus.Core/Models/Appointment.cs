@@ -9,7 +9,6 @@ namespace CluedIn.Crawling.Adversus.Core.Models
 {
     public class Appointment
     {
-
         [JsonProperty("id")]
         public int Id { get; set; }
 
