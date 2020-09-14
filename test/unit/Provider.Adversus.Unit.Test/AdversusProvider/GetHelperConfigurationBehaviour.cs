@@ -3,7 +3,7 @@ using System.Linq;
 using AutoFixture.Xunit2;
 using CluedIn.Core.Crawling;
 using CluedIn.Crawling.Adversus.Core;
-using Should;
+using Shouldly;
 using Xunit;
 
 namespace CluedIn.Provider.Adversus.Unit.Test.AdversusProvider
@@ -26,7 +26,7 @@ namespace CluedIn.Provider.Adversus.Unit.Test.AdversusProvider
 
             ((ArgumentNullException)ex.InnerExceptions.Single())
                 .ParamName
-                .ShouldEqual("jobData");
+                .ShouldBe("jobData");
         }
 
         [Theory]
@@ -42,7 +42,7 @@ namespace CluedIn.Provider.Adversus.Unit.Test.AdversusProvider
 
 
         [Theory]
-        [InlineAutoData("ApiKey", "ApiKey", "some-value")]
+        [InlineAutoData("Username", "Username", "some-value")]
         // TODO add data for other properties that need populating
         // Fill in the values for expected results ....
         public void Returns_Expected_Data(string key, string propertyName, object expectedValue, Guid organizationId, Guid userId, Guid providerDefinitionId) // TODO add additional parameters to populate CrawlJobData instance
@@ -59,7 +59,7 @@ namespace CluedIn.Provider.Adversus.Unit.Test.AdversusProvider
                     $"{key} not found in results");
 
             result[key]
-                .ShouldEqual(expectedValue);
+                .ShouldBe(expectedValue);
         }
     }
 }
