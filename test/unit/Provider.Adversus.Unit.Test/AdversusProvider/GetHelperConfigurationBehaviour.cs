@@ -42,7 +42,7 @@ namespace CluedIn.Provider.Adversus.Unit.Test.AdversusProvider
 
 
         [Theory]
-        [InlineAutoData("ApiKey", "ApiKey", "some-value")]
+        [InlineAutoData("Username", "Username", "some-value")]
         // TODO add data for other properties that need populating
         // Fill in the values for expected results ....
         public void Returns_Expected_Data(string key, string propertyName, object expectedValue, Guid organizationId, Guid userId, Guid providerDefinitionId) // TODO add additional parameters to populate CrawlJobData instance
