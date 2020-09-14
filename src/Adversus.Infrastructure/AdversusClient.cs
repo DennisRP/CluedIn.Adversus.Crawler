@@ -3,33 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using CluedIn.Core;
 using CluedIn.Core.Logging;
 using CluedIn.Core.Providers;
 using CluedIn.Crawling.Adversus.Core;
 using CluedIn.Crawling.Adversus.Core.Models;
-using Microsoft.Extensions.Logging;
+using CluedIn.Crawling.Adversus.Core.Models.Webhooks;
 using Newtonsoft.Json;
 using RestSharp;
 
 namespace CluedIn.Crawling.Adversus.Infrastructure
 {
-    // TODO - This class should act as a client to retrieve the data to be crawled.
-    // It should provide the appropriate methods to get the data
-    // according to the type of data source (e.g. for AD, GetUsers, GetRoles, etc.)
-    // It can receive a IRestClient as a dependency to talk to a RestAPI endpoint.
-    // This class should not contain crawling logic (i.e. in which order things are retrieved)
     public class AdversusClient
     {
-        private const string BaseUri = "http://sample.com";
+        private const string BaseUri = "https://api.adversus.dk";
 
-        private readonly ILogger<AdversusClient> log;
+        private readonly ILogger log;
 
         private readonly IRestClient client;
 
         private AdversusCrawlJobData _adversusCrawlJobData;
 
-        public AdversusClient(ILogger<AdversusClient> log, AdversusCrawlJobData adversusCrawlJobData, IRestClient client) // TODO: pass on any extra dependencies
+        public AdversusClient(ILogger log, AdversusCrawlJobData adversusCrawlJobData, IRestClient client) // TODO: pass on any extra dependencies
         {
             if (adversusCrawlJobData == null)
             {
@@ -46,26 +43,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
 
             // TODO use info from adversusCrawlJobData to instantiate the connection
             client.BaseUrl = new Uri(BaseUri);
-            client.AddDefaultParameter("api_key", adversusCrawlJobData.ApiKey, ParameterType.QueryString);
             this._adversusCrawlJobData = adversusCrawlJobData;
-        }
-
-        private async Task<T> GetAsync<T>(string url)
-        {
-            var request = new RestRequest(url, Method.GET);
-
-            var response = await client.ExecuteTaskAsync(request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                var diagnosticMessage = $"Request to {client.BaseUrl}{url} failed, response {response.ErrorMessage} ({response.StatusCode})";
-                log.LogError(diagnosticMessage);
-                throw new InvalidOperationException($"Communication to jsonplaceholder unavailable. {diagnosticMessage}");
-            }
-
-            var data = JsonConvert.DeserializeObject<T>(response.Content);
-
-            return data;
         }
 
         public AccountInformation GetAccountInformation()
@@ -73,7 +51,6 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             var api = "https://api.adversus.dk/organization";
             using (HttpClient httpClient = new HttpClient())
             {
-              
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_adversusCrawlJobData.Username + ":" + _adversusCrawlJobData.Password));
@@ -83,25 +60,23 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    
+
                     var results = JsonConvert.DeserializeObject<Organization>(responseContent);
                     if (results != null)
                         return new AccountInformation(results.Id, results.Name);
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
-               
             }
-            //TODO - return some unique information about the remote data source
-            // that uniquely identifies the account
+
             return new AccountInformation("", "");
         }
 
@@ -120,18 +95,18 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
                     var results = JsonConvert.DeserializeObject<Campaigns>(responseContent);
-                    campaigns = results.campaigns;
+                    campaigns = results.CampaignList;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
                 foreach (var item in campaigns)
                 {
@@ -155,18 +130,18 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
                     var results = JsonConvert.DeserializeObject<List<CampaignEfficiency>>(responseContent);
                     campaigns = results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
                 foreach (var item in campaigns)
                 {
@@ -190,22 +165,23 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
-                        log.LogError("500 Internal Server Error.");
+                        log.Error("500 Internal Server Error.");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
+
                     var results = JsonConvert.DeserializeObject<List<Project>>(responseContent);
                     projects = results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
                 foreach (var item in projects)
                 {
@@ -214,12 +190,12 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             }
         }
 
-        public IEnumerable<Project> GetProjectDetails(int projectId, string username, string password)
+        [CanBeNull]
+        public Project GetProjectDetails(int projectId, string username, string password)
         {
             var api = string.Format("https://api.adversus.dk/projects/{0}", projectId);
             using (HttpClient httpClient = new HttpClient())
-            {
-                var projects = new List<Project>();
+            {                
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
@@ -229,23 +205,20 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    var results = JsonConvert.DeserializeObject<List<Project>>(responseContent);
-                    projects = results;
+                    var results = JsonConvert.DeserializeObject<Project>(responseContent);
+                    return results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
-                }
-                foreach (var item in projects)
-                {
-                    yield return item;
-                }
+                    log.Error(() => "Call to Adversus API Failed", exception);
+                    return null;
+                }               
             }
         }
 
@@ -254,7 +227,6 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             var api = "https://api.adversus.dk/contacts";
             using (HttpClient httpClient = new HttpClient())
             {
-               
                 int page = 0;
                 while (true)
                 {
@@ -266,20 +238,20 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                         var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
                         var auth = string.Format("Basic: {0}", credentials);
                         httpClient.DefaultRequestHeaders.Add("Authorization", auth);
-      
+
                         var response = httpClient.GetAsync(pagedApi).Result;
                         var responseContent = response.Content.ReadAsStringAsync().Result;
                         if (response.StatusCode == HttpStatusCode.Unauthorized)
                         {
-                            log.LogError("401 Unauthorized. Check credentials");
+                            log.Error("401 Unauthorized. Check credentials");
                         }
                         else if (response.StatusCode == HttpStatusCode.InternalServerError)
                         {
-                            log.LogError("500 Internal Server Error.");
+                            log.Error("500 Internal Server Error.");
                         }
                         else if (response.StatusCode != HttpStatusCode.OK)
                         {
-                            log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                            log.Error(response.StatusCode.ToString() + " Failed to get data");
                         }
                         var results = JsonConvert.DeserializeObject<List<ContactList>>(responseContent);
                         if (results == null)
@@ -291,7 +263,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     }
                     catch (Exception exception)
                     {
-                        log.LogError("Call to Adversus API Failed", exception);
+                        log.Error(() => "Call to Adversus API Failed", exception);
                     }
                     foreach (var item in contacts)
                     {
@@ -303,12 +275,12 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             }
         }
 
-        public IEnumerable<Contact> GetContactDetails(int contactId, string username, string password)
+        [CanBeNull]
+        public Contact GetContactDetails(int contactId, string username, string password)
         {
             var api = string.Format("https://api.adversus.dk/contacts/{0}", contactId);
             using (HttpClient httpClient = new HttpClient())
             {
-                var projects = new List<Contact>();
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
@@ -318,23 +290,20 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    var results = JsonConvert.DeserializeObject<List<Contact>>(responseContent);
-                    projects = results;
+                    var results = JsonConvert.DeserializeObject<Contact>(responseContent);
+                    return results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
-                }
-                foreach (var item in projects)
-                {
-                    yield return item;
-                }
+                    log.Error(() => "Call to Adversus API Failed", exception);
+                    return null;
+                }               
             }
         }
 
@@ -353,22 +322,23 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
-                        log.LogError("500 Internal Server Error.");
+                        log.Error("500 Internal Server Error.");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
+
                     var results = JsonConvert.DeserializeObject<List<Lead>>(responseContent);
                     projects = results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
                 foreach (var item in projects)
                 {
@@ -392,22 +362,23 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
-                        log.LogError("500 Internal Server Error.");
+                        log.Error("500 Internal Server Error.");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
+
                     var results = JsonConvert.DeserializeObject<List<Session>>(responseContent);
                     sessions = results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
                 foreach (var item in sessions)
                 {
@@ -421,7 +392,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             var api = "https://api.adversus.dk/users";
             using (HttpClient httpClient = new HttpClient())
             {
-                var sessions = new List<User>();
+                var users = new List<User>();
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
@@ -431,24 +402,24 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
-                        log.LogError("500 Internal Server Error.");
+                        log.Error("500 Internal Server Error.");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
                     var results = JsonConvert.DeserializeObject<List<User>>(responseContent);
-                    sessions = results;
+                    users = results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
-                foreach (var item in sessions)
+                foreach (var item in users)
                 {
                     yield return item;
                 }
@@ -470,22 +441,22 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
-                        log.LogError("500 Internal Server Error.");
+                        log.Error("500 Internal Server Error.");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
                     var results = JsonConvert.DeserializeObject<List<Pool>>(responseContent);
                     sessions = results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
                 foreach (var item in sessions)
                 {
@@ -509,22 +480,22 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
-                        log.LogError("500 Internal Server Error.");
+                        log.Error("500 Internal Server Error.");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
                     var results = JsonConvert.DeserializeObject<List<Appointment>>(responseContent);
                     sessions = results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
                 foreach (var item in sessions)
                 {
@@ -539,7 +510,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             var api = "https://api.adversus.dk/cdr";
             using (HttpClient httpClient = new HttpClient())
             {
-     
+
                 int page = 0;
                 while (true)
                 {
@@ -547,7 +518,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
 
                     try
                     {
-                        var pagedApi = api + "?page=" + page + "&pageSize=20" + "&filter={startTime : \""+ _adversusCrawlJobData.LastCrawlFinishTime + "\"}";
+                        var pagedApi = api + "?page=" + page + "&pageSize=20" + "&filter={startTime : \"" + _adversusCrawlJobData.LastCrawlFinishTime + "\"}";
                         var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
                         var auth = string.Format("Basic: {0}", credentials);
                         httpClient.DefaultRequestHeaders.Add("Authorization", auth);
@@ -556,15 +527,15 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                         var responseContent = response.Content.ReadAsStringAsync().Result;
                         if (response.StatusCode == HttpStatusCode.Unauthorized)
                         {
-                            log.LogError("401 Unauthorized. Check credentials");
+                            log.Error("401 Unauthorized. Check credentials");
                         }
                         else if (response.StatusCode == HttpStatusCode.InternalServerError)
                         {
-                            log.LogError("500 Internal Server Error.");
+                            log.Error("500 Internal Server Error.");
                         }
                         else if (response.StatusCode != HttpStatusCode.OK)
                         {
-                            log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                            log.Error(response.StatusCode.ToString() + " Failed to get data");
                         }
                         var results = JsonConvert.DeserializeObject<List<CDR>>(responseContent);
                         if (results == null)
@@ -576,7 +547,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     }
                     catch (Exception exception)
                     {
-                        log.LogError("Call to Adversus API Failed", exception);
+                        log.Error(() => "Call to Adversus API Failed", exception);
                     }
                     foreach (var item in cdr)
                     {
@@ -606,22 +577,22 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
-                        log.LogError("500 Internal Server Error.");
+                        log.Error("500 Internal Server Error.");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
                     var results = JsonConvert.DeserializeObject<List<Sale>>(responseContent);
                     sessions = results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
                 foreach (var item in sessions)
                 {
@@ -645,22 +616,22 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var responseContent = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        log.LogError("401 Unauthorized. Check credentials");
+                        log.Error("401 Unauthorized. Check credentials");
                     }
                     else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
-                        log.LogError("500 Internal Server Error.");
+                        log.Error("500 Internal Server Error.");
                     }
                     else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
                     }
                     var results = JsonConvert.DeserializeObject<List<Product>>(responseContent);
                     sessions = results;
                 }
                 catch (Exception exception)
                 {
-                    log.LogError("Call to Adversus API Failed", exception);
+                    log.Error(() => "Call to Adversus API Failed", exception);
                 }
                 foreach (var item in sessions)
                 {
@@ -690,15 +661,15 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                         var responseContent = response.Content.ReadAsStringAsync().Result;
                         if (response.StatusCode == HttpStatusCode.Unauthorized)
                         {
-                            log.LogError("401 Unauthorized. Check credentials");
+                            log.Error("401 Unauthorized. Check credentials");
                         }
                         else if (response.StatusCode == HttpStatusCode.InternalServerError)
                         {
-                            log.LogError("500 Internal Server Error.");
+                            log.Error("500 Internal Server Error.");
                         }
                         else if (response.StatusCode != HttpStatusCode.OK)
                         {
-                            log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                            log.Error(response.StatusCode.ToString() + " Failed to get data");
                         }
                         var results = JsonConvert.DeserializeObject<List<SMS>>(responseContent);
                         if (results == null)
@@ -710,7 +681,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     }
                     catch (Exception exception)
                     {
-                        log.LogError("Call to Adversus API Failed", exception);
+                        log.Error(() => "Call to Adversus API Failed", exception);
                     }
                     foreach (var item in cdr)
                     {
@@ -719,6 +690,125 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
 
                     page++;
                 }
+            }
+        }
+
+        public IEnumerable<AdversusWebhook> GetWebhooks(string username, string password)
+        {
+            var api = "https://api.adversus.dk/webhooks";
+            using (HttpClient httpClient = new HttpClient())
+            {
+                var webhooks = new List<AdversusWebhook>();
+                try
+                {
+                    var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
+                    var auth = string.Format("Basic: {0}", credentials);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", auth);
+                    var response = httpClient.GetAsync(api).Result;
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        log.Error("401 Unauthorized. Check credentials");
+                    }
+                    else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        log.Error("500 Internal Server Error.");
+                    }
+                    else if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
+                    }
+                    var results = JsonConvert.DeserializeObject<List<AdversusWebhook>>(responseContent);
+                    webhooks = results;
+                }
+                catch (Exception exception)
+                {
+                    log.Error(() => "Call to Adversus API Failed", exception);
+                }
+                foreach (var item in webhooks)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        [CanBeNull]
+        public WebhookResponse CreateWebhooks(Uri url, string @event)
+        {
+            var api = "https://api.adversus.dk/webhooks";
+            using (HttpClient httpClient = new HttpClient())
+            {
+                var webhooks = new List<AdversusWebhook>();
+                try
+                {
+                    var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_adversusCrawlJobData.Username + ":" + _adversusCrawlJobData.Password));
+                    var auth = string.Format("Basic: {0}", credentials);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", auth);
+                    var json = JsonConvert.SerializeObject(new WebhookPost() { AuthKey = credentials, Event = @event, Url = url.ToString(), Template = new Template() { Event = @event, IntegrationId = this.GetAccountInformation().AccountId } });
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var response = httpClient.PostAsync(api, data).Result;
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        log.Error("401 Unauthorized. Check credentials");
+                    }
+                    else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        log.Error("500 Internal Server Error.");
+                    }
+                    else if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
+                    }
+                    var results = JsonConvert.DeserializeObject<WebhookResponse>(responseContent);
+                    return results;
+                }
+                catch (Exception exception)
+                {
+                    log.Error(() => "Call to Adversus API Failed", exception);
+                }
+
+                return null;
+
+            }
+        }
+
+        [CanBeNull]
+        public WebhookResponse DeleteWebhooks(WebHookSignature webhook)
+        {
+            var api = "https://api.adversus.dk/webhooks/" + webhook.ExternalId;
+            using (HttpClient httpClient = new HttpClient())
+            {
+                var webhooks = new List<AdversusWebhook>();
+                try
+                {
+                    var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_adversusCrawlJobData.Username + ":" + _adversusCrawlJobData.Password));
+                    var auth = string.Format("Basic: {0}", credentials);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", auth);
+                    var response = httpClient.DeleteAsync(api).Result;
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        log.Error("401 Unauthorized. Check credentials");
+                    }
+                    else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        log.Error("500 Internal Server Error.");
+                    }
+                    else if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        log.Error(response.StatusCode.ToString() + " Failed to get data");
+                    }
+                    var results = JsonConvert.DeserializeObject<WebhookResponse>(responseContent);
+                    return results;
+                }
+                catch (Exception exception)
+                {
+                    log.Error(() => "Call to Adversus API Failed", exception);
+                }
+
+                return null;
+
             }
         }
     }

@@ -23,8 +23,71 @@ namespace CluedIn.Crawling.Adversus
 
             var client = clientFactory.CreateNew(adversuscrawlJobData);
 
-            //retrieve data from provider and yield objects
-            
+            foreach (var item in client.GetCampaigns(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return item;
+
+                foreach (var campaignEfficiency in client.GetCampaignEfficiency(item.Id, adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+                {
+                    campaignEfficiency.CampaignId = item.Id;
+                    yield return campaignEfficiency;
+                }
+            }
+
+            foreach (var item in client.GetProjects(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return client.GetProjectDetails(item.Id, adversuscrawlJobData.Username, adversuscrawlJobData.Password);
+            }
+
+            foreach (var item in client.GetContacts(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return client.GetContactDetails(item.Id, adversuscrawlJobData.Username, adversuscrawlJobData.Password);
+            }
+
+            foreach (var item in client.GetLeads(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return item;
+            }
+
+            foreach (var item in client.GetSessions(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return item;
+            }
+
+            foreach (var item in client.GetUsers(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return item;
+            }
+
+            foreach (var item in client.GetPools(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return item;
+            }
+
+            foreach (var item in client.GetAppointments(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return item;
+            }
+
+            foreach (var item in client.GetCDR(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return item;
+            }
+
+            foreach (var item in client.GetSales(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return item;
+            }
+
+            foreach (var item in client.GetProducts(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return item;
+            }
+
+            foreach (var item in client.GetSMS(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
+            {
+                yield return item;
+            }
         }       
     }
 }

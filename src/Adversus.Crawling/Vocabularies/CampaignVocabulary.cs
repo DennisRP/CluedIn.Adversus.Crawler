@@ -14,9 +14,9 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
 
             AddGroup("Adversus Campaign Details", group =>
             {
-                id = group.Add(new VocabularyKey("Id", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Id = group.Add(new VocabularyKey("Id", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
             });
         }
-        public VocabularyKey id { get; internal set; }
+        public VocabularyKey Id { get; internal set; }
     }
 }

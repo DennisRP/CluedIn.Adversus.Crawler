@@ -12,11 +12,11 @@ using CluedIn.Crawling.Helpers;
 
 namespace CluedIn.Crawling.Adversus.ClueProducers
 {
-    public class CampaignProducer : BaseClueProducer<Campaign>
+    public class PoolProducer : BaseClueProducer<Pool>
     {
         private readonly IClueFactory _factory;
 
-        public CampaignProducer([NotNull] IClueFactory factory)
+        public PoolProducer([NotNull] IClueFactory factory)
         {
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
@@ -24,26 +24,33 @@ namespace CluedIn.Crawling.Adversus.ClueProducers
             _factory = factory;
         }
 
-        protected override Clue MakeClueImpl([NotNull] Campaign input, Guid accountId)
+        protected override Clue MakeClueImpl([NotNull] Pool input, Guid accountId)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            var clue = _factory.Create(EntityType.Unknown, input.Id.ToString(), accountId);
+            var clue = _factory.Create("/Pool", input.Id.ToString(), accountId);
 
             var data = clue.Data.EntityData;
 
-            if (!string.IsNullOrWhiteSpace(input.Id))
+            data.Name = input.Name.ToString();
+
+            var vocab = new PoolVocabulary();
+
+            data.Properties[vocab.Id] = input.Id.PrintIfAvailable();
+            data.Properties[vocab.Active] = input.Active.PrintIfAvailable();
+
+            DateTimeOffset createdDate;
+            if (DateTimeOffset.TryParse(input.Created, out createdDate))
             {
-                data.Name = input.Id.ToString();
+                data.CreatedDate = createdDate;
             }
-            
-            var vocab = new CampaignVocabulary();
+
+            data.Properties[vocab.Created] = input.Created.PrintIfAvailable();
+            data.Properties[vocab.Name] = input.Name.PrintIfAvailable();
 
             if (!data.OutgoingEdges.Any())
                 _factory.CreateEntityRootReference(clue, EntityEdgeType.PartOf);
-
-            data.Properties[vocab.Id] = input.Id.PrintIfAvailable();
 
             return clue;
         }

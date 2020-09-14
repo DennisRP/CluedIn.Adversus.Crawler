@@ -55,12 +55,31 @@ namespace CluedIn.Provider.Adversus
             Guid userId,
             Guid providerDefinitionId)
         {
-            throw new NotImplementedException();
+            var adversusCrawlJobData = new AdversusCrawlJobData();
+            if (configuration.ContainsKey(AdversusConstants.KeyName.ApiKey))
+            { adversusCrawlJobData.ApiKey = configuration[AdversusConstants.KeyName.ApiKey].ToString(); }
+            if (configuration.ContainsKey(AdversusConstants.KeyName.Username))
+            { adversusCrawlJobData.Username = configuration[AdversusConstants.KeyName.Username].ToString(); }
+            if (configuration.ContainsKey(AdversusConstants.KeyName.Password))
+            { adversusCrawlJobData.Password = configuration[AdversusConstants.KeyName.Password].ToString(); }
+
+
+            try
+            {
+                var client = _adversusClientFactory.CreateNew(adversusCrawlJobData);
+                var result = client.GetAccountInformation();
+                return Task.FromResult(result != null);
+            }
+            catch (Exception exception)
+            {
+                context.Log.Warn(() => "Could not add Adversus provider", exception);
+                return Task.FromResult(false);
+            }
         }
 
-        public override Task<ExpectedStatistics> FetchUnSyncedEntityStatistics(ExecutionContext context, IDictionary<string, object> configuration, Guid organizationId, Guid userId, Guid providerDefinitionId)
+        public override async Task<ExpectedStatistics> FetchUnSyncedEntityStatistics(ExecutionContext context, IDictionary<string, object> configuration, Guid organizationId, Guid userId, Guid providerDefinitionId)
         {
-            throw new NotImplementedException();
+            return await Task.FromResult(default(ExpectedStatistics));
         }
 
         public override async Task<IDictionary<string, object>> GetHelperConfiguration(
@@ -79,13 +98,28 @@ namespace CluedIn.Provider.Adversus
             {
                 //TODO add the transformations from specific CrawlJobData object to dictionary
                 // add tests to GetHelperConfigurationBehaviour.cs
-                dictionary.Add(AdversusConstants.KeyName.ApiKey, adversusCrawlJobData.ApiKey);
+                dictionary.Add(AdversusConstants.KeyName.Username, adversusCrawlJobData.Username);
+
+
+                dictionary.Add("webhooks", new List<object>()
+                {
+                    new { DisplayName = "New Contact", Name = "contact.creation", Status = "ACTIVE", Description = "When a new contact is created."},
+                    new { DisplayName = "Deleted Contact", Name = "contact.deletion", Status = "ACTIVE", Description = "When a contact is deleted."},
+                    new { DisplayName = "Contact Update", Name = "contact.propertyChange", Status = "ACTIVE", Description = "When a contact is updated."},
+                    new { DisplayName = "New Company", Name = "company.creation", Status = "ACTIVE", Description = "When a company is created."},
+                    new { DisplayName = "Deleted Company", Name = "company.deletion", Status = "ACTIVE", Description = "When a company is deleted."},
+                    new { DisplayName = "Company Update", Name = "company.propertyChange", Status = "ACTIVE", Description = "When a company is updated."},
+                    new { DisplayName = "New Deal", Name = "deal.creation", Status = "ACTIVE", Description = "When a deal is created."},
+                    new { DisplayName = "Deleted Deal", Name = "deal.deletion", Status = "ACTIVE", Description = "When a deal is deleted"},
+                    new { DisplayName = "Deal Update", Name = "deal.propertyChange", Status = "ACTIVE", Description = "When a deal is updated."}
+                });
+
             }
 
             return await Task.FromResult(dictionary);
         }
 
-        public override Task<IDictionary<string, object>> GetHelperConfiguration(
+        public override async Task<IDictionary<string, object>> GetHelperConfiguration(
             ProviderUpdateContext context,
             CrawlJobData jobData,
             Guid organizationId,
@@ -93,7 +127,7 @@ namespace CluedIn.Provider.Adversus
             Guid providerDefinitionId,
             string folderId)
         {
-            throw new NotImplementedException();
+            return await GetHelperConfiguration(context, jobData, organizationId, userId, providerDefinitionId);
         }
 
         public override async Task<AccountInformation> GetAccountInformation(ExecutionContext context, [NotNull] CrawlJobData jobData, Guid organizationId, Guid userId, Guid providerDefinitionId)
@@ -105,9 +139,24 @@ namespace CluedIn.Provider.Adversus
             {
                 throw new Exception("Wrong CrawlJobData type");
             }
+     
+            try
+            {
+                var client = _adversusClientFactory.CreateNew(adversusCrawlJobData);
+                var result = client.GetAccountInformation();
+                if (result != null)
+                {
+                  
+                    return new AccountInformation(result.AccountId, result.AccountDisplay);
+                }
+                return new AccountInformation(string.Empty, string.Empty) { Errors = new Dictionary<string, string>() { { "error", "Please contact CluedIn support in the top menu to help you setup with Adversus." } } };
 
-            var client = _adversusClientFactory.CreateNew(adversusCrawlJobData);
-            return await Task.FromResult(client.GetAccountInformation());
+            }
+            catch (Exception e)
+            {
+                context.Log.Error(() => "There was an error getting HubSpot account information {message}", e);
+                return new AccountInformation(string.Empty, string.Empty) { Errors = new Dictionary<string, string>() { { "error", "Please contact CluedIn support in the top menu to help you setup with Adversus." }, { "exception", e.Message } } };
+            }
         }
 
         public override string Schedule(DateTimeOffset relativeDateTime, bool webHooksEnabled)
@@ -116,46 +165,122 @@ namespace CluedIn.Provider.Adversus
                 : $"{relativeDateTime.Minute} 0/4 * * *";
         }
 
-        public override Task<IEnumerable<WebHookSignature>> CreateWebHook(ExecutionContext context, [NotNull] CrawlJobData jobData, [NotNull] IWebhookDefinition webhookDefinition, [NotNull] IDictionary<string, object> config)
+        public override async Task<IEnumerable<WebHookSignature>> CreateWebHook(ExecutionContext context, [NotNull] CrawlJobData jobData, [NotNull] IWebhookDefinition webhookDefinition, [NotNull] IDictionary<string, object> config)
+        {
+            await Task.Run(() =>
+            {
+                var adversusCrawlJobData = (AdversusCrawlJobData)jobData;
+                var webhookSignatures = new List<WebHookSignature>();
+                try
+                {
+                    var client = _adversusClientFactory.CreateNew(adversusCrawlJobData);
+
+                    var data = client.GetWebhooks(adversusCrawlJobData.Username, adversusCrawlJobData.Password);
+
+                    if (data == null)
+                        return webhookSignatures;
+
+                    var hookTypes = new[] { "lead_saved", "call_ended", "callAnswered", "leadClosedSuccess", "leadClosedAutomaticRedial", "leadClosedPrivateRedial", "leadClosedNotInterested", "leadClosedInvalid", "leadClosedUnqualified", "leadClosedSystem", "leads_deactivated", "leads_inserted", "mail_activity", "sms_sent", "sms_received", "appointment_added", "appointment_updated" };
+                    webhookDefinition.Uri = new Uri(this.appContext.System.Configuration.WebhookReturnUrl.Trim('/') /*+ ConfigurationManagerEx.AppSettings["Providers.HubSpot.WebhookEndpoint"]*/);
+
+                    foreach (var subscription in hookTypes)
+                    {
+                        if (config.ContainsKey("webhooks"))
+                        {
+                            //var enabledHooks = (List<WebhookEventType>)config["webhooks"];
+                            //var enabled = enabledHooks.Where(s => s.Status == "ACTIVE").Select(s => s.Name);
+                            //if (!enabled.Contains(subscription))
+                            //{
+                            //    continue;
+                            //}
+                        }
+
+                        try
+                        {
+                            var result = client.CreateWebhooks(webhookDefinition.Uri, subscription);
+                            webhookSignatures.Add(new WebHookSignature { Signature = webhookDefinition.ProviderDefinitionId.ToString(), ExternalVersion = "v1", ExternalId = null, EventTypes = "lead_saved,call_ended,callAnswered,leadClosedSuccess,leadClosedAutomaticRedial,leadClosedPrivateRedial,leadClosedNotInterested,leadClosedInvalid,leadClosedUnqualified,leadClosedSystem,leads_deactivated,leads_inserted,mail_activity,sms_sent,sms_received,appointment_added,appointment_updated" });
+                        }
+                        catch (Exception exception)
+                        {
+                            context.Log.Warn(() => "Could not create HubSpot Webhook for subscription", exception);
+                            return new List<WebHookSignature>();
+                        }
+                    }
+
+
+                    webhookDefinition.Verified = true;
+                }
+                catch (Exception exception)
+                {
+                    context.Log.Warn(() => "Could not create Adversus Webhook", exception);
+                    return new List<WebHookSignature>();
+                }
+
+                var organizationProviderDataStore = context.Organization.DataStores.GetDataStore<ProviderDefinition>();
+                if (organizationProviderDataStore != null)
+                {
+                    if (webhookDefinition.ProviderDefinitionId != null)
+                    {
+                        var webhookEnabled = organizationProviderDataStore.GetById(context, webhookDefinition.ProviderDefinitionId.Value);
+                        if (webhookEnabled != null)
+                        {
+                            webhookEnabled.WebHooks = true;
+                            organizationProviderDataStore.Update(context, webhookEnabled);
+                        }
+                    }
+                }
+
+                return webhookSignatures;
+            });
+
+            return new List<WebHookSignature>();
+        }
+
+        public override async Task<IEnumerable<WebhookDefinition>> GetWebHooks(ExecutionContext context)
+        {
+            var webhookDefinitionDataStore = context.Organization.DataStores.GetDataStore<WebhookDefinition>();
+            return await webhookDefinitionDataStore.SelectAsync(context, s => s.Verified != null && s.Verified.Value);
+        }
+
+        public override async Task DeleteWebHook(ExecutionContext context, [NotNull] CrawlJobData jobData, [NotNull] IWebhookDefinition webhookDefinition)
         {
             if (jobData == null)
                 throw new ArgumentNullException(nameof(jobData));
             if (webhookDefinition == null)
                 throw new ArgumentNullException(nameof(webhookDefinition));
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
 
-            throw new NotImplementedException();
-        }
+            await Task.Run(() =>
+            {
+                var webhookDefinitionProviderDataStore = context.Organization.DataStores.GetDataStore<WebhookDefinition>();
+                if (webhookDefinitionProviderDataStore != null)
+                {
+                    var webhook = webhookDefinitionProviderDataStore.GetById(context, webhookDefinition.Id);
+                    if (webhook != null)
+                    {
+                        webhookDefinitionProviderDataStore.Delete(context, webhook);
+                    }
+                }
 
-        public override Task<IEnumerable<WebhookDefinition>> GetWebHooks(ExecutionContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task DeleteWebHook(ExecutionContext context, [NotNull] CrawlJobData jobData, [NotNull] IWebhookDefinition webhookDefinition)
-        {
-            if (jobData == null)
-                throw new ArgumentNullException(nameof(jobData));
-            if (webhookDefinition == null)
-                throw new ArgumentNullException(nameof(webhookDefinition));
-
-            throw new NotImplementedException();
+                var organizationProviderDataStore = context.Organization.DataStores.GetDataStore<ProviderDefinition>();
+                if (organizationProviderDataStore != null)
+                {
+                    if (webhookDefinition.ProviderDefinitionId != null)
+                    {
+                        var webhookEnabled = organizationProviderDataStore.GetById(context, webhookDefinition.ProviderDefinitionId.Value);
+                        if (webhookEnabled != null)
+                        {
+                            webhookEnabled.WebHooks = false;
+                            organizationProviderDataStore.Update(context, webhookEnabled);
+                        }
+                    }
+                }
+            });
         }
 
         public override IEnumerable<string> WebhookManagementEndpoints([NotNull] IEnumerable<string> ids)
         {
-            if (ids == null)
-            {
-                throw new ArgumentNullException(nameof(ids));
-            }
-
-            if (!ids.Any())
-            {
-                throw new ArgumentException(nameof(ids));
-            }
-
-            throw new NotImplementedException();
+            var endpoints = new List<string> { "https://hooks.cluedin.net/manage/hubspot/hooks" };
+            return endpoints;
         }
 
         public override async Task<CrawlLimit> GetRemainingApiAllowance(ExecutionContext context, [NotNull] CrawlJobData jobData, Guid organizationId, Guid userId, Guid providerDefinitionId)
