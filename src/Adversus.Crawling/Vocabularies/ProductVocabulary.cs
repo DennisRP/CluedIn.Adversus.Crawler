@@ -10,7 +10,7 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
             VocabularyName = "Adversus Product"; // TODO: Set value
             KeyPrefix = "adversus.product"; // TODO: Set value
             KeySeparator = ".";
-            Grouping = EntityType.PhoneCall; // TODO: Set value
+            Grouping = EntityType.Product; // TODO: Set value
 
             AddGroup("Adversus Product Details", group =>
             {

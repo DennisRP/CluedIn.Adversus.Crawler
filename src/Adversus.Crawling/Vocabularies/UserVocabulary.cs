@@ -10,7 +10,7 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
             VocabularyName = "Adversus User"; // TODO: Set value
             KeyPrefix = "adversus.user"; // TODO: Set value
             KeySeparator = ".";
-            Grouping = EntityType.PhoneCall; // TODO: Set value
+            Grouping = EntityType.Infrastructure.User; // TODO: Set value
 
             AddGroup("Adversus User Details", group =>
             {
