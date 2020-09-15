@@ -29,7 +29,7 @@ namespace CluedIn.Crawling.Adversus.ClueProducers
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            var clue = _factory.Create(EntityType.Unknown, input.Id.ToString(), accountId);
+            var clue = _factory.Create(EntityType.Marketing.Campaign, input.Id.ToString(), accountId);
 
             var data = clue.Data.EntityData;
 
