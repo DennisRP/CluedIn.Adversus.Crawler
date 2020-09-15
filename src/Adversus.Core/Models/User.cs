@@ -7,6 +7,10 @@ using Newtonsoft.Json;
 
 namespace CluedIn.Crawling.Adversus.Core.Models
 {
+    public class UserList
+    {
+        public List<User> Users { get; set; }
+    }
     public class User
     {
         [JsonProperty("id")]
@@ -22,7 +26,7 @@ namespace CluedIn.Crawling.Adversus.Core.Models
         public bool Admin { get; set; }
 
         [JsonProperty("phone")]
-        public long Phone { get; set; }
+        public long? Phone { get; set; }
 
         [JsonProperty("email")]
         public string Email { get; set; }
