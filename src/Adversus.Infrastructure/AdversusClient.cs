@@ -100,6 +100,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
+                    //TODO: Fails to deserialize
                     var results = JsonConvert.DeserializeObject<Campaigns>(responseContent);
                     campaigns = results.CampaignList;
                 }
@@ -252,6 +253,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                         {
                             log.LogError(response.StatusCode.ToString() + " Failed to get data");
                         }
+                        //TODO: Fails to deserialize
                         var results = JsonConvert.DeserializeObject<List<ContactList>>(responseContent);
                         if (results == null)
                             break;
@@ -332,7 +334,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
-
+                    //TODO: Fails to deserialize
                     var results = JsonConvert.DeserializeObject<List<Lead>>(responseContent);
                     projects = results;
                 }
@@ -372,7 +374,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
-
+                    //TODO: Fails to deserialize
                     var results = JsonConvert.DeserializeObject<List<Session>>(responseContent);
                     sessions = results;
                 }
@@ -490,6 +492,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
+                    //TODO: Fails to deserialize
                     var results = JsonConvert.DeserializeObject<List<Appointment>>(responseContent);
                     sessions = results;
                 }
@@ -537,6 +540,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                         {
                             log.LogError(response.StatusCode.ToString() + " Failed to get data");
                         }
+                        //TODO: Fails to deserialize
                         var results = JsonConvert.DeserializeObject<List<CDR>>(responseContent);
                         if (results == null)
                             break;
