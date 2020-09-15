@@ -7,12 +7,12 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
     {
         public SMSVocabulary()
         {
-            VocabularyName = "Adversus CDR"; // TODO: Set value
-            KeyPrefix = "adversus.cdr"; // TODO: Set value
+            VocabularyName = "Adversus SMS"; // TODO: Set value
+            KeyPrefix = "adversus.sms"; // TODO: Set value
             KeySeparator = ".";
             Grouping = EntityType.PhoneCall; // TODO: Set value
 
-            AddGroup("Adversus Call Detail Record Details", group =>
+            AddGroup("Adversus SMS Details", group =>
             {
                 Id = group.Add(new VocabularyKey("Id", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 AnswerTime = group.Add(new VocabularyKey("AnswerTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
@@ -27,6 +27,13 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
                 SessionId = group.Add(new VocabularyKey("SessionId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 StartTime = group.Add(new VocabularyKey("StartTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
                 UserId = group.Add(new VocabularyKey("UserId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
+                Receiver = group.Add(new VocabularyKey("Receiver", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Content = group.Add(new VocabularyKey("Content", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Sender = group.Add(new VocabularyKey("Sender", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Timestamp = group.Add(new VocabularyKey("Timestamp", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
+                Status = group.Add(new VocabularyKey("Status", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Type = group.Add(new VocabularyKey("Type", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Units = group.Add(new VocabularyKey("Units", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
             });
         }
 

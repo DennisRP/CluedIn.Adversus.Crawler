@@ -7,12 +7,12 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
     {
         public LeadVocabulary()
         {
-            VocabularyName = "Adversus CDR"; // TODO: Set value
-            KeyPrefix = "adversus.cdr"; // TODO: Set value
+            VocabularyName = "Adversus Lead"; // TODO: Set value
+            KeyPrefix = "adversus.lead"; // TODO: Set value
             KeySeparator = ".";
             Grouping = EntityType.PhoneCall; // TODO: Set value
 
-            AddGroup("Adversus Call Detail Record Details", group =>
+            AddGroup("Adversus Lead Details", group =>
             {
                 Id = group.Add(new VocabularyKey("Id", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 AnswerTime = group.Add(new VocabularyKey("AnswerTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
@@ -27,6 +27,14 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
                 SessionId = group.Add(new VocabularyKey("SessionId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 StartTime = group.Add(new VocabularyKey("StartTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
                 UserId = group.Add(new VocabularyKey("UserId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
+                ContactAttempts = group.Add(new VocabularyKey("ContactAttempts", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                ExternalId = group.Add(new VocabularyKey("ExternalId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
+                LastContactedBy = group.Add(new VocabularyKey("LastContactedBy", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                LastModifiedTime = group.Add(new VocabularyKey("LastModifiedTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
+                MasterData = group.Add(new VocabularyKey("MasterData", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                NextContactTime = group.Add(new VocabularyKey("NextContactTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
+                ResultData = group.Add(new VocabularyKey("ResultData", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Status = group.Add(new VocabularyKey("Status", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
             });
         }
 

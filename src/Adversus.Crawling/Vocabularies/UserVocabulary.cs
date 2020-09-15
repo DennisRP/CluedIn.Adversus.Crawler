@@ -7,12 +7,12 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
     {
         public UserVocabulary()
         {
-            VocabularyName = "Adversus CDR"; // TODO: Set value
-            KeyPrefix = "adversus.cdr"; // TODO: Set value
+            VocabularyName = "Adversus User"; // TODO: Set value
+            KeyPrefix = "adversus.user"; // TODO: Set value
             KeySeparator = ".";
             Grouping = EntityType.PhoneCall; // TODO: Set value
 
-            AddGroup("Adversus Call Detail Record Details", group =>
+            AddGroup("Adversus User Details", group =>
             {
                 Id = group.Add(new VocabularyKey("Id", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 AnswerTime = group.Add(new VocabularyKey("AnswerTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
@@ -27,6 +27,12 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
                 SessionId = group.Add(new VocabularyKey("SessionId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 StartTime = group.Add(new VocabularyKey("StartTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
                 UserId = group.Add(new VocabularyKey("UserId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
+                Locale = group.Add(new VocabularyKey("Locale", VocabularyKeyDataType.GeographyLocation, VocabularyKeyVisibility.Visible));
+                Name = group.Add(new VocabularyKey("Name", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Phone = group.Add(new VocabularyKey("Phone", VocabularyKeyDataType.PhoneNumber, VocabularyKeyVisibility.Visible));
+                Email = group.Add(new VocabularyKey("Email", VocabularyKeyDataType.Email, VocabularyKeyVisibility.Visible));
+                Admin = group.Add(new VocabularyKey("Admin", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Active = group.Add(new VocabularyKey("Active", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
             });
         }
 

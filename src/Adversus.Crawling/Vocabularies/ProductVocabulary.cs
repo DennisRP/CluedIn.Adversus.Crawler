@@ -7,12 +7,12 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
     {
         public ProductVocabulary()
         {
-            VocabularyName = "Adversus CDR"; // TODO: Set value
-            KeyPrefix = "adversus.cdr"; // TODO: Set value
+            VocabularyName = "Adversus Product"; // TODO: Set value
+            KeyPrefix = "adversus.product"; // TODO: Set value
             KeySeparator = ".";
             Grouping = EntityType.PhoneCall; // TODO: Set value
 
-            AddGroup("Adversus Call Detail Record Details", group =>
+            AddGroup("Adversus Product Details", group =>
             {
                 Id = group.Add(new VocabularyKey("Id", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 AnswerTime = group.Add(new VocabularyKey("AnswerTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
@@ -27,6 +27,10 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
                 SessionId = group.Add(new VocabularyKey("SessionId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 StartTime = group.Add(new VocabularyKey("StartTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
                 UserId = group.Add(new VocabularyKey("UserId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
+                UnitPrice = group.Add(new VocabularyKey("UnitPrice", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Unit = group.Add(new VocabularyKey("Unit", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Max = group.Add(new VocabularyKey("Max", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Min = group.Add(new VocabularyKey("Min", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
             });
         }
 

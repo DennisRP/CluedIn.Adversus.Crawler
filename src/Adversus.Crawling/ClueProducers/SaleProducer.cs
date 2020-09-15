@@ -38,10 +38,10 @@ namespace CluedIn.Crawling.Adversus.ClueProducers
 
             var vocab = new SaleVocabulary();
 
-            data.Properties[vocab.Campaignid] = input.Campaignid.PrintIfAvailable();
+            data.Properties[vocab.CampaignId] = input.Campaignid.PrintIfAvailable();
             data.Properties[vocab.Currency] = input.Currency.PrintIfAvailable();
             data.Properties[vocab.Id] = input.Id.PrintIfAvailable();
-            data.Properties[vocab.Leadid] = input.Leadid.PrintIfAvailable();
+            data.Properties[vocab.LeadId] = input.Leadid.PrintIfAvailable();
             data.Properties[vocab.Lines] = input.Lines.PrintIfAvailable();
             data.Properties[vocab.State] = input.State.PrintIfAvailable();
 

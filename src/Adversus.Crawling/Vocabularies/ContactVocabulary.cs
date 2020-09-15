@@ -7,8 +7,8 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
     {
         public ContactVocabulary()
         {
-            VocabularyName = "Adversus CDR"; // TODO: Set value
-            KeyPrefix = "adversus.cdr"; // TODO: Set value
+            VocabularyName = "Adversus Contact"; // TODO: Set value
+            KeyPrefix = "adversus.contact"; // TODO: Set value
             KeySeparator = ".";
             Grouping = EntityType.PhoneCall; // TODO: Set value
 
@@ -27,6 +27,9 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
                 SessionId = group.Add(new VocabularyKey("SessionId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 StartTime = group.Add(new VocabularyKey("StartTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
                 UserId = group.Add(new VocabularyKey("UserId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
+                Data = group.Add(new VocabularyKey("Data", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                ExternalId = group.Add(new VocabularyKey("ExternalId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
+                PoolId = group.Add(new VocabularyKey("PoolId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
             });
         }
 
