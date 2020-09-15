@@ -14,6 +14,7 @@ using CluedIn.Crawling.Adversus.Core;
 using CluedIn.Crawling.Adversus.Infrastructure.Factories;
 using CluedIn.Providers.Models;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 namespace CluedIn.Provider.Adversus
 {
@@ -72,7 +73,7 @@ namespace CluedIn.Provider.Adversus
             }
             catch (Exception exception)
             {
-                context.Log.Warn(() => "Could not add Adversus provider", exception);
+                context.Log.LogError("Could not add Adversus provider", exception);
                 return Task.FromResult(false);
             }
         }
@@ -154,7 +155,7 @@ namespace CluedIn.Provider.Adversus
             }
             catch (Exception e)
             {
-                context.Log.Error(() => "There was an error getting HubSpot account information {message}", e);
+                context.Log.LogError("There was an error getting HubSpot account information {message}", e);
                 return new AccountInformation(string.Empty, string.Empty) { Errors = new Dictionary<string, string>() { { "error", "Please contact CluedIn support in the top menu to help you setup with Adversus." }, { "exception", e.Message } } };
             }
         }
@@ -202,7 +203,7 @@ namespace CluedIn.Provider.Adversus
                         }
                         catch (Exception exception)
                         {
-                            context.Log.Warn(() => "Could not create HubSpot Webhook for subscription", exception);
+                            context.Log.LogWarning("Could not create HubSpot Webhook for subscription", exception);
                             return new List<WebHookSignature>();
                         }
                     }
@@ -212,7 +213,7 @@ namespace CluedIn.Provider.Adversus
                 }
                 catch (Exception exception)
                 {
-                    context.Log.Warn(() => "Could not create Adversus Webhook", exception);
+                    context.Log.LogWarning("Could not create Adversus Webhook", exception);
                     return new List<WebHookSignature>();
                 }
 

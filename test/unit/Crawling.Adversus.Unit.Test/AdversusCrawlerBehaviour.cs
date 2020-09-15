@@ -3,7 +3,7 @@ using CluedIn.Crawling;
 using CluedIn.Crawling.Adversus;
 using CluedIn.Crawling.Adversus.Infrastructure.Factories;
 using Moq;
-using Should;
+using Shouldly;
 using Xunit;
 
 namespace Crawling.Adversus.Unit.Test
