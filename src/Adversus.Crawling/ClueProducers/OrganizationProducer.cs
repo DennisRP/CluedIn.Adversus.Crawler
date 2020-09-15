@@ -33,7 +33,10 @@ namespace CluedIn.Crawling.Adversus.ClueProducers
 
             var data = clue.Data.EntityData;
 
-            data.Name = input.Name.ToString();
+            if (!string.IsNullOrWhiteSpace(input.Name))
+            {
+                data.Name = input.Name.ToString();
+            }
 
             var vocab = new OrganizationVocabulary();
 
