@@ -412,8 +412,8 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    var results = JsonConvert.DeserializeObject<List<User>>(responseContent);
-                    users = results;
+                    var results = JsonConvert.DeserializeObject<UserList>(responseContent);
+                    users = results.Users;
                 }
                 catch (Exception exception)
                 {
