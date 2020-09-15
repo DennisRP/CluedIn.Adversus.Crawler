@@ -54,7 +54,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_adversusCrawlJobData.Username + ":" + _adversusCrawlJobData.Password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -89,7 +89,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -124,7 +124,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -159,7 +159,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -199,7 +199,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -236,7 +236,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         var pagedApi = api + "?page=" + page + "&pageSize=20";
                         var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                        var auth = string.Format("Basic: {0}", credentials);
+                        var auth = string.Format("Basic {0}", credentials);
                         httpClient.DefaultRequestHeaders.Add("Authorization", auth);
 
                         var response = httpClient.GetAsync(pagedApi).Result;
@@ -284,7 +284,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -316,7 +316,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -356,7 +356,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -396,7 +396,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -435,7 +435,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -474,7 +474,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -520,7 +520,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         var pagedApi = api + "?page=" + page + "&pageSize=20" + "&filter={startTime : \"" + _adversusCrawlJobData.LastCrawlFinishTime + "\"}";
                         var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                        var auth = string.Format("Basic: {0}", credentials);
+                        var auth = string.Format("Basic {0}", credentials);
                         httpClient.DefaultRequestHeaders.Add("Authorization", auth);
 
                         var response = httpClient.GetAsync(pagedApi).Result;
@@ -571,7 +571,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     var pagedApi = api + "?filter={created: \"" + _adversusCrawlJobData.LastCrawlFinishTime + "\"}";
 
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -610,7 +610,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -654,7 +654,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         var pagedApi = api + "?page=" + page + "&pageSize=20" + "&filter={timestamp : \"" + _adversusCrawlJobData.LastCrawlFinishTime + "\"}";
                         var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                        var auth = string.Format("Basic: {0}", credentials);
+                        var auth = string.Format("Basic {0}", credentials);
                         httpClient.DefaultRequestHeaders.Add("Authorization", auth);
 
                         var response = httpClient.GetAsync(pagedApi).Result;
@@ -702,7 +702,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.GetAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
@@ -742,7 +742,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_adversusCrawlJobData.Username + ":" + _adversusCrawlJobData.Password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var json = JsonConvert.SerializeObject(new WebhookPost() { AuthKey = credentials, Event = @event, Url = url.ToString(), Template = new Template() { Event = @event, IntegrationId = this.GetAccountInformation().AccountId } });
                     var data = new StringContent(json, Encoding.UTF8, "application/json");
@@ -783,7 +783,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                 try
                 {
                     var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_adversusCrawlJobData.Username + ":" + _adversusCrawlJobData.Password));
-                    var auth = string.Format("Basic: {0}", credentials);
+                    var auth = string.Format("Basic {0}", credentials);
                     httpClient.DefaultRequestHeaders.Add("Authorization", auth);
                     var response = httpClient.DeleteAsync(api).Result;
                     var responseContent = response.Content.ReadAsStringAsync().Result;
