@@ -263,6 +263,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     catch (Exception exception)
                     {
                         log.LogError("Call to Adversus API Failed", exception);
+                        break;
                     }
                     foreach (var item in contacts)
                     {
@@ -547,6 +548,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     catch (Exception exception)
                     {
                         log.LogError("Call to Adversus API Failed", exception);
+                        break;
                     }
                     foreach (var item in cdr)
                     {
@@ -681,6 +683,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     catch (Exception exception)
                     {
                         log.LogError("Call to Adversus API Failed", exception);
+                        break;
                     }
                     foreach (var item in cdr)
                     {
