@@ -8,11 +8,6 @@ using Newtonsoft.Json.Linq;
 
 namespace CluedIn.Crawling.Adversus.Core.Models
 {
-    //public class ContactList
-    //{
-    //    public int[] Ids { get; set; }
-
-    //}
 
     public class Contact
     {
