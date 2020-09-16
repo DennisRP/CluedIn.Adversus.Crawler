@@ -7,6 +7,10 @@ using Newtonsoft.Json;
 
 namespace CluedIn.Crawling.Adversus.Core.Models
 {
+    public class SessionList
+    {
+        public List<Session> Sessions { get; set; }
+    }
     public class Cdr
     {
 
@@ -14,13 +18,13 @@ namespace CluedIn.Crawling.Adversus.Core.Models
         public string Destination { get; set; }
 
         [JsonProperty("startTime")]
-        public DateTime StartTime { get; set; }
+        public DateTime? StartTime { get; set; }
 
         [JsonProperty("answerTime")]
-        public DateTime AnswerTime { get; set; }
+        public DateTime? AnswerTime { get; set; }
 
         [JsonProperty("endTime")]
-        public DateTime EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         [JsonProperty("durationSeconds")]
         public int DurationSeconds { get; set; }
@@ -33,28 +37,28 @@ namespace CluedIn.Crawling.Adversus.Core.Models
     {
 
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonProperty("leadId")]
-        public int LeadId { get; set; }
+        public int? LeadId { get; set; }
 
         [JsonProperty("userId")]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
 
         [JsonProperty("campaignId")]
-        public int CampaignId { get; set; }
+        public int? CampaignId { get; set; }
 
         [JsonProperty("startTime")]
-        public DateTime StartTime { get; set; }
+        public DateTime? StartTime { get; set; }
 
         [JsonProperty("endTime")]
-        public DateTime EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         [JsonProperty("status")]
         public string Status { get; set; }
 
         [JsonProperty("sessionSeconds")]
-        public int SessionSeconds { get; set; }
+        public int? SessionSeconds { get; set; }
 
         [JsonProperty("cdr")]
         public Cdr Cdr { get; set; }

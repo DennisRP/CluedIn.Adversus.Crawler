@@ -7,6 +7,11 @@ using Newtonsoft.Json;
 
 namespace CluedIn.Crawling.Adversus.Core.Models
 {
+    public class CDRList
+    {
+        [JsonProperty("cdr")]
+        public List<CDR> CDRs { get; set; }
+    }
     public class Links
     {
         [JsonProperty("recording")]
@@ -43,15 +48,15 @@ namespace CluedIn.Crawling.Adversus.Core.Models
         public string Disposition { get; set; }
 
         [JsonProperty("startTime")]
-        public DateTime StartTime { get; set; }
+        public DateTime? StartTime { get; set; }
 
         [JsonProperty("answerTime")]
-        public DateTime AnswerTime { get; set; }
+        public DateTime? AnswerTime { get; set; }
 
         [JsonProperty("endTime")]
-        public DateTime EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         [JsonProperty("links")]
-        public Links Links { get; set; }
+        public List<Links> Links { get; set; }
     }
 }

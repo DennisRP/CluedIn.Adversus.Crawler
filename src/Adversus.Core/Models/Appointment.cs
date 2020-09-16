@@ -7,6 +7,10 @@ using Newtonsoft.Json;
 
 namespace CluedIn.Crawling.Adversus.Core.Models
 {
+    public class AppointmentList
+    {
+        public List<Appointment> Appointments { get; set; }
+    }
     public class Appointment
     {
         [JsonProperty("id")]

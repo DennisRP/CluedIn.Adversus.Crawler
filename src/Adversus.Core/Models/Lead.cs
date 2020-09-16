@@ -7,11 +7,15 @@ using Newtonsoft.Json;
 
 namespace CluedIn.Crawling.Adversus.Core.Models
 {
+    public class LeadList
+    {
+        public List<Lead> Leads { get; set; }
+    }
     public class MasterData
     {
 
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonProperty("value")]
         public string Value { get; set; }
@@ -21,7 +25,7 @@ namespace CluedIn.Crawling.Adversus.Core.Models
     {
 
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonProperty("value")]
         public string Value { get; set; }
@@ -31,22 +35,22 @@ namespace CluedIn.Crawling.Adversus.Core.Models
     {
 
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonProperty("campaignId")]
-        public int CampaignId { get; set; }
+        public int? CampaignId { get; set; }
 
         [JsonProperty("contactAttempts")]
-        public int ContactAttempts { get; set; }
+        public int? ContactAttempts { get; set; }
 
         [JsonProperty("lastModifiedTime")]
-        public DateTime LastModifiedTime { get; set; }
+        public DateTime? LastModifiedTime { get; set; }
 
         [JsonProperty("nextContactTime")]
-        public DateTime NextContactTime { get; set; }
+        public DateTime? NextContactTime { get; set; }
 
         [JsonProperty("lastContactedBy")]
-        public int LastContactedBy { get; set; }
+        public int? LastContactedBy { get; set; }
 
         [JsonProperty("status")]
         public string Status { get; set; }
