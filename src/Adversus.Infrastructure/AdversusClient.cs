@@ -100,9 +100,8 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    //TODO: Fails to deserialize
-                    var results = JsonConvert.DeserializeObject<Campaigns>(responseContent);
-                    campaigns = results.CampaignList;
+                    var results = JsonConvert.DeserializeObject<List<Campaign>>(responseContent);
+                    campaigns = results;
                 }
                 catch (Exception exception)
                 {
@@ -136,6 +135,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
+                    //HTTP CODE 500
                     var results = JsonConvert.DeserializeObject<List<CampaignEfficiency>>(responseContent);
                     campaigns = results;
                 }
@@ -222,57 +222,50 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
             }
         }
 
-        public IEnumerable<ContactList> GetContacts(string username, string password)
+        public IEnumerable<int> GetContacts(string username, string password)
         {
             var api = "https://api.adversus.dk/contacts";
             using (HttpClient httpClient = new HttpClient())
             {
-                int page = 0;
-                while (true)
+                var contacts = new List<int>();
+
+                try
                 {
-                    var contacts = new List<ContactList>();
+                    //No paging, returned over 40k even with page params
+                    //var pagedApi = api + "?page=" + page + "&pageSize=20";
+                    var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
+                    var auth = string.Format("Basic {0}", credentials);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", auth);
 
-                    try
+                    var response = httpClient.GetAsync(api).Result;
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        var pagedApi = api + "?page=" + page + "&pageSize=20";
-                        var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
-                        var auth = string.Format("Basic {0}", credentials);
-                        httpClient.DefaultRequestHeaders.Add("Authorization", auth);
-
-                        var response = httpClient.GetAsync(pagedApi).Result;
-                        var responseContent = response.Content.ReadAsStringAsync().Result;
-                        if (response.StatusCode == HttpStatusCode.Unauthorized)
-                        {
-                            log.LogError("401 Unauthorized. Check credentials");
-                        }
-                        else if (response.StatusCode == HttpStatusCode.InternalServerError)
-                        {
-                            log.LogError("500 Internal Server Error.");
-                        }
-                        else if (response.StatusCode != HttpStatusCode.OK)
-                        {
-                            log.LogError(response.StatusCode.ToString() + " Failed to get data");
-                        }
-                        //TODO: Fails to deserialize
-                        var results = JsonConvert.DeserializeObject<List<ContactList>>(responseContent);
-                        if (results == null)
-                            break;
-                        if (!results.Any())
-                            break;
-
-                        contacts = results;
+                        log.LogError("401 Unauthorized. Check credentials");
                     }
-                    catch (Exception exception)
+                    else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     {
-                        log.LogError("Call to Adversus API Failed", exception);
-                        break;
+                        log.LogError("500 Internal Server Error.");
                     }
-                    foreach (var item in contacts)
+                    else if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        yield return item;
+                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
+                    var results = JsonConvert.DeserializeObject<List<int>>(responseContent);
+                    if (results == null)
+                        yield break;
+                    if (!results.Any())
+                        yield break;
 
-                    page++;
+                    contacts = results;
+                }
+                catch (Exception exception)
+                {
+                    log.LogError("Call to Adversus API Failed", exception);
+                }
+                foreach (var item in contacts)
+                {
+                    yield return item;
                 }
             }
         }
@@ -334,9 +327,8 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    //TODO: Fails to deserialize
-                    var results = JsonConvert.DeserializeObject<List<Lead>>(responseContent);
-                    projects = results;
+                    var results = JsonConvert.DeserializeObject<LeadList>(responseContent);
+                    projects = results.Leads;
                 }
                 catch (Exception exception)
                 {
@@ -374,9 +366,8 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    //TODO: Fails to deserialize
-                    var results = JsonConvert.DeserializeObject<List<Session>>(responseContent);
-                    sessions = results;
+                    var results = JsonConvert.DeserializeObject<SessionList>(responseContent);
+                    sessions = results.Sessions;
                 }
                 catch (Exception exception)
                 {
@@ -492,9 +483,8 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
-                    //TODO: Fails to deserialize
-                    var results = JsonConvert.DeserializeObject<List<Appointment>>(responseContent);
-                    sessions = results;
+                    var results = JsonConvert.DeserializeObject<AppointmentList>(responseContent);
+                    sessions = results.Appointments;
                 }
                 catch (Exception exception)
                 {
@@ -540,14 +530,13 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                         {
                             log.LogError(response.StatusCode.ToString() + " Failed to get data");
                         }
-                        //TODO: Fails to deserialize
-                        var results = JsonConvert.DeserializeObject<List<CDR>>(responseContent);
+                        var results = JsonConvert.DeserializeObject<CDRList>(responseContent);
                         if (results == null)
                             break;
-                        if (!results.Any())
+                        if (!results.CDRs.Any())
                             break;
 
-                        cdr = results;
+                        cdr = results.CDRs;
                     }
                     catch (Exception exception)
                     {
