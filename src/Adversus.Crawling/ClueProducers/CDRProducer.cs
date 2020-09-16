@@ -46,7 +46,7 @@ namespace CluedIn.Crawling.Adversus.ClueProducers
             data.Properties[vocab.DurationSeconds] = input.DurationSeconds.PrintIfAvailable();
             data.Properties[vocab.EndTime] = input.EndTime.PrintIfAvailable();
             data.Properties[vocab.LeadId] = input.LeadId.PrintIfAvailable();
-            data.Properties[vocab.Recording] = input.Links?.Recording.PrintIfAvailable();
+            //data.Properties[vocab.Recording] = input.Links?.Recording.PrintIfAvailable();
             data.Properties[vocab.SessionId] = input.SessionId.PrintIfAvailable();
             data.Properties[vocab.StartTime] = input.StartTime.PrintIfAvailable();
             data.Properties[vocab.UserId] = input.UserId.PrintIfAvailable();
