@@ -41,7 +41,7 @@ namespace CluedIn.Crawling.Adversus
 
             foreach (var item in client.GetContacts(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
             {
-                yield return client.GetContactDetails(item.Id, adversuscrawlJobData.Username, adversuscrawlJobData.Password);
+                yield return client.GetContactDetails(item, adversuscrawlJobData.Username, adversuscrawlJobData.Password);
             }
 
             foreach (var item in client.GetLeads(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
