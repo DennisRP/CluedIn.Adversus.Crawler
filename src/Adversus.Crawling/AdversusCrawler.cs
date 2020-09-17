@@ -39,9 +39,11 @@ namespace CluedIn.Crawling.Adversus
                 yield return client.GetProjectDetails(item.Id, adversuscrawlJobData.Username, adversuscrawlJobData.Password);
             }
 
+            // Get field mapping from API
+            var fieldMapping = client.GetFields(adversuscrawlJobData.Username, adversuscrawlJobData.Password);
             foreach (var item in client.GetContacts(adversuscrawlJobData.Username, adversuscrawlJobData.Password))
             {
-                yield return client.GetContactDetails(item, adversuscrawlJobData.Username, adversuscrawlJobData.Password);
+                yield return client.GetContactDetails(item, fieldMapping, adversuscrawlJobData.Username, adversuscrawlJobData.Password);
             }
 
             foreach (var item in client.GetLeads(adversuscrawlJobData.Username, adversuscrawlJobData.Password))

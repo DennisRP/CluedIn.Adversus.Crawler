@@ -22,5 +22,7 @@ namespace CluedIn.Crawling.Adversus.Core.Models
 
         [JsonProperty("data")]
         public JObject Data { get; set; }
+
+        public Dictionary<string, string> MappedData { get; set; }
     }
 }

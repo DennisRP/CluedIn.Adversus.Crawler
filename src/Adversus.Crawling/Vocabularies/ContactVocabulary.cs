@@ -27,10 +27,33 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
                 SessionId = group.Add(new VocabularyKey("SessionId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 StartTime = group.Add(new VocabularyKey("StartTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
                 UserId = group.Add(new VocabularyKey("UserId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
-                Data = group.Add(new VocabularyKey("Data", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
                 ExternalId = group.Add(new VocabularyKey("ExternalId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 PoolId = group.Add(new VocabularyKey("PoolId", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
+                Phone = group.Add(new VocabularyKey("Phone", VocabularyKeyDataType.PhoneNumber, VocabularyKeyVisibility.Visible));
+                FirstName = group.Add(new VocabularyKey("FirstName", VocabularyKeyDataType.PersonName, VocabularyKeyVisibility.Visible)); // merge with lastname?
+                LastName = group.Add(new VocabularyKey("LastName", VocabularyKeyDataType.PersonName, VocabularyKeyVisibility.Visible));
+                Address = group.Add(new VocabularyKey("Address", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                ZipCode = group.Add(new VocabularyKey("ZipCode", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                City = group.Add(new VocabularyKey("City", VocabularyKeyDataType.GeographyCity, VocabularyKeyVisibility.Visible));
+                Email = group.Add(new VocabularyKey("Email", VocabularyKeyDataType.Email, VocabularyKeyVisibility.Visible));
+                JobTitle = group.Add(new VocabularyKey("JobTitle", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                Company = group.Add(new VocabularyKey("Company", VocabularyKeyDataType.OrganizationName, VocabularyKeyVisibility.Visible));
+                CVR = group.Add(new VocabularyKey("CVR", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
+                Source = group.Add(new VocabularyKey("Source", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
+                Campaign = group.Add(new VocabularyKey("Campaign", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
+                UnsuccessfulMessage = group.Add(new VocabularyKey("UnsuccessfulMessage", VocabularyKeyDataType.Text, VocabularyKeyVisibility.Visible));
             });
+
+            AddMapping(Phone, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInPerson.PhoneNumber);            
+            AddMapping(FirstName, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInPerson.FirstName);
+            AddMapping(LastName, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInPerson.LastName);
+            AddMapping(Address, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInPerson.HomeAddress);
+            AddMapping(ZipCode, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInPerson.HomeAddressZipCode);
+            AddMapping(City, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInPerson.HomeAddressCity);
+            AddMapping(Email, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInPerson.Email);
+            AddMapping(JobTitle, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInPerson.JobTitle);
+            AddMapping(Company, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName);
+            AddMapping(CVR, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.CodesCVR);
         }
 
         public VocabularyKey Id { get; internal set; }
@@ -46,8 +69,20 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
         public VocabularyKey SessionId { get; internal set; }
         public VocabularyKey StartTime { get; internal set; }
         public VocabularyKey UserId { get; internal set; }
-        public VocabularyKey Data { get; internal set; }
         public VocabularyKey ExternalId { get; internal set; }
         public VocabularyKey PoolId { get; internal set; }
+        public VocabularyKey Phone { get; internal set; }
+        public VocabularyKey FirstName { get; internal set; }
+        public VocabularyKey LastName { get; internal set; }
+        public VocabularyKey Address { get; internal set; }
+        public VocabularyKey ZipCode { get; internal set; }
+        public VocabularyKey City { get; internal set; }
+        public VocabularyKey Email { get; internal set; }
+        public VocabularyKey JobTitle { get; internal set; }
+        public VocabularyKey Company { get; internal set; }
+        public VocabularyKey CVR { get; internal set; }
+        public VocabularyKey Source { get; internal set; }
+        public VocabularyKey Campaign { get; internal set; }
+        public VocabularyKey UnsuccessfulMessage { get; internal set; }        
     }
 }
