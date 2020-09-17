@@ -32,13 +32,20 @@ namespace CluedIn.Crawling.Adversus.Core
             token = new Control[]
             {
         // You can define controls to show in the GUI in order to authenticate with this integration
-        //        new Control()
-        //        {
-        //            displayName = "API key",
-        //            isRequired = false,
-        //            name = "api",
-        //            type = "text"
-        //        }
+                new Control()
+                {
+                    displayName = "Username",
+                    isRequired = true,
+                    name = "Username",
+                    type = "text"
+                },
+                new Control()
+                {
+                    displayName = "Password",
+                    isRequired = true,
+                    name = "Password",
+                    type = "password"
+                }
             }
         };
 
