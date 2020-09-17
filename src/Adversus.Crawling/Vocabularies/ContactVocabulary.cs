@@ -12,7 +12,7 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
             KeySeparator = ".";
             Grouping = EntityType.Infrastructure.Contact; // TODO: Set value
 
-            AddGroup("Adversus Call Detail Record Details", group =>
+            AddGroup("Adversus Contact Details", group =>
             {
                 Id = group.Add(new VocabularyKey("Id", VocabularyKeyDataType.Identifier, VocabularyKeyVisibility.Visible));
                 AnswerTime = group.Add(new VocabularyKey("AnswerTime", VocabularyKeyDataType.Time, VocabularyKeyVisibility.Visible));
