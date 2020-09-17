@@ -33,15 +33,19 @@ namespace CluedIn.Crawling.Adversus.ClueProducers
 
             var data = clue.Data.EntityData;
 
-            data.Name = input.Id.ToString();
-
             var vocab = new ContactVocabulary();
 
             data.Properties[vocab.Id] = input.Id.PrintIfAvailable();
             data.Properties[vocab.ExternalId] = input.ExternalId.PrintIfAvailable();
             data.Properties[vocab.PoolId] = input.PoolId.PrintIfAvailable();
 
-            if (input.MappedData.ContainsKey("Fornavn"))
+            if (input.MappedData.ContainsKey("Fornavn") && input.MappedData.ContainsKey("Efternavn"))
+                data.Name = $"{input.MappedData["Fornavn"]} {input.MappedData["Efternavn"]}";
+            else
+                data.Name = input.Id.PrintIfAvailable();
+
+
+                if (input.MappedData.ContainsKey("Fornavn"))
                 data.Properties[vocab.FirstName] = input.MappedData["Fornavn"];
             if (input.MappedData.ContainsKey("Efternavn"))
                 data.Properties[vocab.LastName] = input.MappedData["Efternavn"];
@@ -59,6 +63,8 @@ namespace CluedIn.Crawling.Adversus.ClueProducers
                 data.Properties[vocab.Company] = input.MappedData["Firma"];
             if (input.MappedData.ContainsKey("CVR"))
                 data.Properties[vocab.CVR] = input.MappedData["CVR"];
+
+
 
             if (input.PoolId != default)
                 _factory.CreateOutgoingEntityReference(clue, "/Pool", EntityEdgeType.PartOf, input, input.PoolId.ToString());
