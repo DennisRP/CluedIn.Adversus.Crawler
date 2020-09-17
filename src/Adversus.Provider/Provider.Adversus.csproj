@@ -1,8 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <None Remove="Resources\adversus.png" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Adversus.Infrastructure\Crawling.Adversus.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\adversus.png" />
     <EmbeddedResource Include="Resources\cluedin.png" />
     <EmbeddedResource Include="AdversusProviderComponent.config">
       <SubType>Designer</SubType>
