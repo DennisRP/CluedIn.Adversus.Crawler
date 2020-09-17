@@ -9,8 +9,10 @@ using CluedIn.Core.Providers;
 using CluedIn.Crawling.Adversus.Core;
 using CluedIn.Crawling.Adversus.Core.Models;
 using CluedIn.Crawling.Adversus.Core.Models.Webhooks;
+using CluedIn.Crawling.Helpers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 
 namespace CluedIn.Crawling.Adversus.Infrastructure
@@ -271,7 +273,7 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
         }
 
         [CanBeNull]
-        public Contact GetContactDetails(int contactId, string username, string password)
+        public Contact GetContactDetails(int contactId, Dictionary<string, string> fieldMapping, string username, string password)
         {
             var api = string.Format("https://api.adversus.dk/contacts/{0}", contactId);
             using (HttpClient httpClient = new HttpClient())
@@ -291,8 +293,59 @@ namespace CluedIn.Crawling.Adversus.Infrastructure
                     {
                         log.LogError(response.StatusCode.ToString() + " Failed to get data");
                     }
+
                     var results = JsonConvert.DeserializeObject<Contact>(responseContent);
+                    results.MappedData = MapContactDataFields(results, fieldMapping);
+
                     return results;
+                }
+                catch (Exception exception)
+                {
+                    log.LogError("Call to Adversus API Failed", exception);
+                    return null;
+                }
+            }
+        }
+
+        private Dictionary<string, string> MapContactDataFields(Contact contact, Dictionary<string, string> fieldMapping)
+        {
+            var mappedContactData = new Dictionary<string, string>();
+
+            foreach (var contactDataField in contact.Data)
+            {
+                if (fieldMapping.ContainsKey(contactDataField.Key))
+                {
+                    var keyFriendlyName = fieldMapping[contactDataField.Key];
+                    mappedContactData.Add(keyFriendlyName, contactDataField.Value.PrintIfAvailable());
+                }
+            }
+
+            return mappedContactData;
+        }
+
+        public Dictionary<string, string> GetFields(string username, string password)
+        {
+            var api = "https://api.adversus.dk/fields";
+            using (HttpClient httpClient = new HttpClient())
+            {
+                try
+                {
+                    var credentials = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
+                    var auth = string.Format("Basic {0}", credentials);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", auth);
+                    var response = httpClient.GetAsync(api).Result;
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        log.LogError("401 Unauthorized. Check credentials");
+                    }
+                    else if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        log.LogError(response.StatusCode.ToString() + " Failed to get data");
+                    }
+
+                    var contactFields = JsonConvert.DeserializeObject<IEnumerable<ContactFields>>(responseContent);
+                    return contactFields.ToDictionary(x => x.Id, x => x.Name);                    
                 }
                 catch (Exception exception)
                 {
