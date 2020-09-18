@@ -59,5 +59,16 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
         public VocabularyKey NextContactTime { get; internal set; }
         public VocabularyKey ResultData { get; internal set; }
         public VocabularyKey Status { get; internal set; }
+        public VocabularyKey FirstName { get; internal set; }
+        public VocabularyKey PhoneNumber { get; internal set; }
+        public VocabularyKey Email { get; internal set; }
+        public VocabularyKey JobTitle { get; internal set; }
+        public VocabularyKey CreatedDate { get; internal set; }
+        public VocabularyKey SocialSecurityNumber { get; internal set; }
+        public VocabularyKey City { get; internal set; }
+        public VocabularyKey Address { get; internal set; }
+        public VocabularyKey Note { get; internal set; }
+        public VocabularyKey Company { get; internal set; }
+        public VocabularyKey BusinessType { get; internal set; }
     }
 }

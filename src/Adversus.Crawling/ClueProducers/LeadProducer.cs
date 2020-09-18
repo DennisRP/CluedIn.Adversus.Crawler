@@ -47,10 +47,37 @@ namespace CluedIn.Crawling.Adversus.ClueProducers
             if (input.LastModifiedTime != null)
                 data.ModifiedDate = input.LastModifiedTime;
 
-            data.Properties[vocab.MasterData] = input.MasterData.PrintIfAvailable();
             data.Properties[vocab.NextContactTime] = input.NextContactTime.PrintIfAvailable();
             data.Properties[vocab.ResultData] = input.ResultData.PrintIfAvailable();
             data.Properties[vocab.Status] = input.Status.PrintIfAvailable();
+
+            foreach (var masterData in input.MasterData)
+            {
+                if (masterData.Label.Equals("Fornavn"))
+                    data.Properties[vocab.FirstName] = masterData.Value;
+                else if (masterData.Label.Equals("Mobil"))
+                    data.Properties[vocab.FirstName] = masterData.Value;
+                else if (masterData.Label.Equals("Email"))
+                    data.Properties[vocab.Email] = masterData.Value;
+                else if (masterData.Label.Equals("Stilling"))
+                    data.Properties[vocab.JobTitle] = masterData.Value;
+                else if (masterData.Label.Equals("Oprettelsesdato"))
+                    data.Properties[vocab.CreatedDate] = masterData.Value;
+                else if (masterData.Label.Equals("CPR"))
+                    data.Properties[vocab.SocialSecurityNumber] = masterData.Value;
+                else if (masterData.Label.Equals("By"))
+                    data.Properties[vocab.City] = masterData.Value;
+                else if (masterData.Label.Equals("Adresse"))
+                    data.Properties[vocab.Address] = masterData.Value;
+                else if (masterData.Label.Equals("Note"))
+                    data.Properties[vocab.Note] = masterData.Value;
+                else if (masterData.Label.Equals("Firma"))
+                    data.Properties[vocab.Company] = masterData.Value;
+                else if (masterData.Label.Equals("Branche"))
+                    data.Properties[vocab.BusinessType] = masterData.Value;
+                else
+                    data.Properties[$"{masterData.Label}-dynamic"] = masterData.Value;
+            }
 
             if (!string.IsNullOrWhiteSpace(input.Status))
                 data.Tags.Add(new Tag(input.Status));
