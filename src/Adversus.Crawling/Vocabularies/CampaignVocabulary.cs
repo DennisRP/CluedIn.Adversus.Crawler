@@ -18,5 +18,10 @@ namespace CluedIn.Crawling.Adversus.Vocabularies
             });
         }
         public VocabularyKey Id { get; internal set; }
+        public VocabularyKey Name { get; internal set; }
+        public VocabularyKey Visible { get; internal set; }
+        public VocabularyKey Active { get; internal set; }
+        public VocabularyKey Record { get; internal set; }
+        public VocabularyKey ProjectId { get; internal set; }
     }
 }

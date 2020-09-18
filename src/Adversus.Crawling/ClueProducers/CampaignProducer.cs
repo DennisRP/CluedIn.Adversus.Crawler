@@ -33,12 +33,23 @@ namespace CluedIn.Crawling.Adversus.ClueProducers
 
             var data = clue.Data.EntityData;
 
-            if (!string.IsNullOrWhiteSpace(input.Id))
+            if (!string.IsNullOrEmpty(input?.Settings.Name))
             {
-                data.Name = input.Id.ToString();
+                data.Name = input.Settings.Name;
             }
-            
+
             var vocab = new CampaignVocabulary();
+
+            if (input.Settings != null)
+            {
+                data.Properties[vocab.Visible] = input.Settings.Visible;
+                data.Properties[vocab.Active] = input.Settings.Active;
+                data.Properties[vocab.Record] = input.Settings.Record;
+                data.Properties[vocab.ProjectId] = input.Settings.ProjectId;
+            }
+
+            if (!string.IsNullOrEmpty(input.Settings?.ProjectId))
+                _factory.CreateOutgoingEntityReference(clue, EntityType.Project, EntityEdgeType.PartOf, input, input.Settings.ProjectId);
 
             if (!data.OutgoingEdges.Any())
                 _factory.CreateEntityRootReference(clue, EntityEdgeType.PartOf);
