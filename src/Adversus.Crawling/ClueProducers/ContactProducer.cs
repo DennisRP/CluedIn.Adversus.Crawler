@@ -45,26 +45,29 @@ namespace CluedIn.Crawling.Adversus.ClueProducers
                 data.Name = input.Id.PrintIfAvailable();
 
 
-                if (input.MappedData.ContainsKey("Fornavn"))
-                data.Properties[vocab.FirstName] = input.MappedData["Fornavn"];
-            if (input.MappedData.ContainsKey("Efternavn"))
-                data.Properties[vocab.LastName] = input.MappedData["Efternavn"];
-            if (input.MappedData.ContainsKey("Adresse"))
-                data.Properties[vocab.Address] = input.MappedData["Adresse"];
-            if (input.MappedData.ContainsKey("Postnummer"))
-                data.Properties[vocab.ZipCode] = input.MappedData["Postnummer"];
-            if (input.MappedData.ContainsKey("Bynavn"))
-                data.Properties[vocab.City] = input.MappedData["Bynavn"];
-            if (input.MappedData.ContainsKey("Email"))
-                data.Properties[vocab.Email] = input.MappedData["Email"];
-            if (input.MappedData.ContainsKey("Stilling"))
-                data.Properties[vocab.JobTitle] = input.MappedData["Stilling"];
-            if (input.MappedData.ContainsKey("Firma"))
-                data.Properties[vocab.Company] = input.MappedData["Firma"];
-            if (input.MappedData.ContainsKey("CVR"))
-                data.Properties[vocab.CVR] = input.MappedData["CVR"];
-
-
+            foreach (var contactProperty in input.MappedData)
+            {
+                if (contactProperty.Key.Equals("Fornavn"))
+                    data.Properties[vocab.FirstName] = contactProperty.Value;
+                else if (contactProperty.Key.Equals("Efternavn"))
+                    data.Properties[vocab.LastName] = contactProperty.Value;
+                else if (contactProperty.Key.Equals("Adresse"))
+                    data.Properties[vocab.Address] = contactProperty.Value;
+                else if (contactProperty.Key.Equals("Postnummer"))
+                    data.Properties[vocab.ZipCode] = contactProperty.Value;
+                else if (contactProperty.Key.Equals("Bynavn"))
+                    data.Properties[vocab.City] = contactProperty.Value;
+                else if (contactProperty.Key.Equals("Email"))
+                    data.Properties[vocab.Email] = contactProperty.Value;
+                else if (contactProperty.Key.Equals("Stilling"))
+                    data.Properties[vocab.JobTitle] = contactProperty.Value;
+                else if (contactProperty.Key.Equals("Firma"))
+                    data.Properties[vocab.Company] = contactProperty.Value;
+                else  if (contactProperty.Key.Equals("CVR"))
+                    data.Properties[vocab.CVR] = contactProperty.Value;
+                else
+                    data.Properties[$"{contactProperty.Key}-dynamic"] = contactProperty.Value;
+            }
 
             if (input.PoolId != default)
                 _factory.CreateOutgoingEntityReference(clue, "/Pool", EntityEdgeType.PartOf, input, input.PoolId.ToString());
